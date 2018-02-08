@@ -1,0 +1,13 @@
+src/*.exe
+.*.swp
+*.*~*
+/Makefile
+build
+huntercoin-qt
+huntercoin-qt.pro.user
+smartmonsters-qt
+smartmonsters-qt.pro.user
+qrc_*.cpp
+src/huntercoind
+src/smartmonstersd
+
