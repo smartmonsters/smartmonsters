@@ -2204,7 +2204,7 @@ bool LoadBlockIndex(bool fAllowNew)
 
         pchMessageStart[0] = 0xfa;
         pchMessageStart[1] = 0xbf;
-        pchMessageStart[2] = 0xb8; // alphatest -- different message start, was 0xb5
+        pchMessageStart[2] = 0xb9; // alphatest -- testnet, different message start, was 0xb5
         pchMessageStart[3] = 0xda;
     }
 
@@ -2524,7 +2524,7 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
 // The message start string is designed to be unlikely to occur in normal data.
 // The characters are rarely used upper ascii, not valid as UTF-8, and produce
 // a large 4-byte int at any alignment.
-char pchMessageStart[4] = { 0xf9, 0xbe, 0xb6, 0xd9 }; // alphatest -- different message start, was 0xf9, 0xbe, 0xb4, 0xd9
+char pchMessageStart[4] = { 0xf9, 0xbe, 0xb6, 0xd9 }; // alphatest -- testnet, different message start, was 0xf9, 0xbe, 0xb4, 0xd9
 
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)

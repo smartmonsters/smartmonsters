@@ -1514,13 +1514,10 @@ void CharacterState::MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int c
         {
             rpg_survival_points = 0;
 
-            // 0...stay where you are
-//            if (ai_queued_harvest_poi > 0)
-            {
-                Rpg_Champion_CommandPOI[color_of_moving_char] = ai_queued_harvest_poi;
-                if ((ai_state & AI_STATE_MARK_RECALL) && (ai_marked_harvest_poi > 0))
-                    Rpg_Champion_CommandMarkRecallPOI[color_of_moving_char] = ai_marked_harvest_poi;
-            }
+            // if the playerhas no queued POI, the command is "stay where you are"
+            Rpg_Champion_CommandPOI[color_of_moving_char] = (ai_queued_harvest_poi > 0) ? ai_queued_harvest_poi : AI_POI_STAYHERE;
+            if ((ai_state & AI_STATE_MARK_RECALL) && (ai_marked_harvest_poi > 0))
+                Rpg_Champion_CommandMarkRecallPOI[color_of_moving_char] = ai_marked_harvest_poi;
         }
     }
 
@@ -4872,8 +4869,11 @@ GameState::Pass3_PaymentAndHitscan()
                 int tmp_color = p.second.color;
                 if (p.first == Rpg_ChampionName[tmp_color])
                 if (i == Rpg_ChampionIndex[tmp_color])
+                if (Rpg_Champion_CommandPOI[tmp_color] >= AI_POI_STAYHERE) // make sure summoning doesn't happen spontaneously
                 {
-                    if (Rpg_Champion_CommandPOI[tmp_color] > 0)
+                    // don't allow summoning to base
+                    // (mons would die at perimeter of foreign base for easy loot)
+                    if ((Rpg_Champion_CommandPOI[tmp_color] >= POIINDEX_NORMAL_FIRST) && (Rpg_Champion_CommandPOI[tmp_color] <= POIINDEX_NORMAL_LAST))
                     {
                         ch.ai_queued_harvest_poi = Rpg_Champion_CommandPOI[tmp_color];
                         ch.ai_order_time = nHeight;
@@ -4884,7 +4884,7 @@ GameState::Pass3_PaymentAndHitscan()
                             ch.ai_marked_harvest_poi = Rpg_Champion_CommandMarkRecallPOI[tmp_color];
                         }
                     }
-                    // 0...stay where you are
+                    // if the player has no queued POI, the command is "stay where you are"
                     else if ((ch.ai_fav_harvest_poi >= POIINDEX_NORMAL_FIRST) && (ch.ai_fav_harvest_poi <= POIINDEX_NORMAL_LAST))
                     {
                         ch.ai_queued_harvest_poi = ch.ai_fav_harvest_poi;

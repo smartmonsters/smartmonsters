@@ -932,7 +932,7 @@ void GetDataDir(char* pszDir)
             *p++ = '/';
         // alphatest -- testnet
 //        strcpy(p, "testnet");
-        strcpy(p, "testnet_alpha");
+        strcpy(p, "testnet_alpha2");
         nVariation += 2;
     }
     static bool pfMkdir[4];
