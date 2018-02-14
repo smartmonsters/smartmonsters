@@ -639,37 +639,37 @@ int Rpg_getMerchantOffer(int m, int h)
     // apply discount
     if (h - Merchant_last_sale[m] > 10000)
     {
-        Rpgcache_MOf *= 0.1;
+        Rpgcache_MOf = Rpgcache_MOf / 10;
         Rpgcache_MOf_discount = 90;
     }
     else if (h - Merchant_last_sale[m] > 5000)
     {
-        Rpgcache_MOf *= 0.3;
+        Rpgcache_MOf = (Rpgcache_MOf * 3) / 10;
         Rpgcache_MOf_discount = 70;
     }
     else if (h - Merchant_last_sale[m] > 2000)
     {
-        Rpgcache_MOf *= 0.5;
+        Rpgcache_MOf = (Rpgcache_MOf * 5) / 10;
         Rpgcache_MOf_discount = 50;
     }
     else if (h - Merchant_last_sale[m] > 1000)
     {
-        Rpgcache_MOf *= 0.6;
+        Rpgcache_MOf = (Rpgcache_MOf * 6) / 10;
         Rpgcache_MOf_discount = 40;
     }
     else if (h - Merchant_last_sale[m] > 500)
     {
-        Rpgcache_MOf *= 0.7;
+        Rpgcache_MOf = (Rpgcache_MOf * 7) / 10;
         Rpgcache_MOf_discount = 30;
     }
     else if (h - Merchant_last_sale[m] > 200)
     {
-        Rpgcache_MOf *= 0.8;
+        Rpgcache_MOf = (Rpgcache_MOf * 8) / 10;
         Rpgcache_MOf_discount = 20;
     }
     else if (h - Merchant_last_sale[m] > 100)
     {
-        Rpgcache_MOf *= 0.9;
+        Rpgcache_MOf = (Rpgcache_MOf * 9) / 10;
         Rpgcache_MOf_discount = 10;
     }
 
