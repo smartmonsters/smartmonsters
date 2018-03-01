@@ -418,5 +418,9 @@ extern int AI_playermap[Game::MAP_HEIGHT][Game::MAP_WIDTH][4];
 #define ASCIIART_IS_COBBLESTONE(T) ((T=='o') || (T=='O') || (T=='q') || (T=='Q') || (T=='8'))
 
 #define RPG_HOTFIX_1 20010
+#define RPG_HOTFIX_2 30010
+#define START_ZONE_FIRSTTILE 208
+#define START_ZONE_LASTTILE 292
+#define START_ZONE_SIZE 32
 
 #endif

@@ -1682,6 +1682,44 @@ GameMapView::GameMapView(QWidget *parent)
                     no_pen, QColor(255, 255, 255, spawn_opacity));
         }
 
+    int pix_bigside_border_begin = (START_ZONE_FIRSTTILE + 1) * TILE_SIZE; // border tile is already inside the zone
+    int pix_bigside_begin = (START_ZONE_FIRSTTILE + 2) * TILE_SIZE;
+    int pix_small_side_with_border = START_ZONE_SIZE * TILE_SIZE;
+    int pix_small_side = (START_ZONE_SIZE - 1) * TILE_SIZE;
+    int pix_bigside_end = (START_ZONE_LASTTILE - 1) * TILE_SIZE;
+    int pix_big_side = (START_ZONE_LASTTILE - START_ZONE_FIRSTTILE - 3) * TILE_SIZE;
+    int pix_mapsize_x = MAP_WIDTH * TILE_SIZE;
+    int pix_mapsize_y = MAP_HEIGHT * TILE_SIZE;
+    // north
+    scene->addRect(pix_bigside_border_begin, 0,           TILE_SIZE, pix_small_side_with_border,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    scene->addRect(pix_bigside_end, 0,                    TILE_SIZE, pix_small_side_with_border,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    scene->addRect(pix_bigside_begin, pix_small_side,     pix_big_side, TILE_SIZE,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    // west
+    scene->addRect(0, pix_bigside_border_begin,           pix_small_side_with_border, TILE_SIZE,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    scene->addRect(0, pix_bigside_end,                    pix_small_side_with_border, TILE_SIZE,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    scene->addRect(pix_small_side, pix_bigside_begin,     TILE_SIZE, pix_big_side,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    // south
+    scene->addRect(pix_bigside_border_begin, pix_mapsize_y-pix_small_side_with_border,    TILE_SIZE, pix_small_side_with_border,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    scene->addRect(pix_bigside_end, pix_mapsize_y-pix_small_side_with_border,             TILE_SIZE, pix_small_side_with_border,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    scene->addRect(pix_bigside_begin, pix_mapsize_y-pix_small_side_with_border,           pix_big_side, TILE_SIZE,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    // east
+    scene->addRect(pix_mapsize_x-pix_small_side_with_border, pix_bigside_border_begin,    pix_small_side_with_border, TILE_SIZE,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    scene->addRect(pix_mapsize_x-pix_small_side_with_border, pix_bigside_end,             pix_small_side_with_border, TILE_SIZE,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+    scene->addRect(pix_mapsize_x-pix_small_side_with_border, pix_bigside_begin,           TILE_SIZE, pix_big_side,
+        no_pen, QColor(255, 255, 255, spawn_opacity));
+
+
     // Yellow (top-left)
     scene->addRect(0, 0,
         SPAWN_AREA_LENGTH * TILE_SIZE, TILE_SIZE,
