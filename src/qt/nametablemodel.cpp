@@ -544,11 +544,11 @@ QVariant NameTableModel::headerData(int section, Qt::Orientation orientation, in
             switch(section)
             {
             case Name:
-                return tr("Player name for Huntercoin");
+                return tr("Player name for SmartMonsters");
             case Value:
                 return tr("Last move of the player");
             case Address:
-                return tr("Huntercoin address to which the name is registered.\n\nNote: rewards can go to another address, if specified in the player profile");
+                return tr("SmartMonsters address to which the name is registered.\n\nNote: rewards can go to another address, if specified in the player profile");
             case State:
                 return tr("State of the player in the game");
             case Status:

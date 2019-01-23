@@ -65,7 +65,7 @@ void ThreadCleanWalletPassphrase(void* parg);
 
 static inline unsigned short GetDefaultRPCPort()
 {
-    return GetBoolArg("-testnet", false) ? 18399 : 8399;
+    return GetBoolArg("-testnet", false) ? 18397 : 8397;
 }
 
 Object JSONRPCError(int code, const string& message)
@@ -92,7 +92,7 @@ void PrintConsole(const char* format, ...)
     }
     printf("%s", buffer);
 #if defined(__WXMSW__) && defined(GUI)
-    MyMessageBox(buffer, "Huntercoin", wxOK | wxICON_EXCLAMATION);
+    MyMessageBox(buffer, "SmartMonsters", wxOK | wxICON_EXCLAMATION);
 #else
     fprintf(stdout, "%s", buffer);
 #endif
@@ -273,11 +273,11 @@ Value stop(const Array& params, bool fHelp)
     if (fHelp || params.size() != 0)
         throw runtime_error(
             "stop\n"
-            "Stop huntercoin server.");
+            "Stop SmartMonsters server.");
 
     // Shutdown will take long enough that the response should get back
     StartShutdown();
-    return "huntercoin server stopping";
+    return "SmartMonsters server stopping";
 }
 
 
@@ -674,9 +674,6 @@ Value setgenerate(const Array& params, bool fHelp)
             "<generate> is true or false to turn generation on or off.\n"
             "Generation is limited to [genproclimit] processors, -1 is unlimited.");
 
-    // alphatest -- testnet
-    nLimitProcessorsEvenMore = false;
-
     bool fGenerate = true;
     if (params.size() > 0)
         fGenerate = params[0].get_bool();
@@ -684,6 +681,14 @@ Value setgenerate(const Array& params, bool fHelp)
     if (params.size() > 1)
     {
         int nGenProcLimit = params[1].get_int();
+
+        // alphatest -- testnet (limit CPU load)
+        if (nGenProcLimit == -2)
+        {
+            nGenProcLimit = 1;
+            nLimitProcessorsEvenMore = true;
+        }
+
         fLimitProcessors = (nGenProcLimit != -1);
         WriteSetting("fLimitProcessors", fLimitProcessors);
         if (nGenProcLimit != -1)
@@ -751,7 +756,7 @@ Value getnewaddress(const Array& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "getnewaddress [account]\n"
-            "Returns a new Huntercoin address for receiving payments.  "
+            "Returns a new SmartMonsters address for receiving payments.  "
             "If [account] is specified (recommended), it is added to the address book "
             "so payments received with the address will be credited to [account]."
             + std::string(pwalletMain->IsCrypted() ? "\nmay require wallet passphrase to be set with walletpassphrase, if the key pool is empty" : ""));
@@ -819,7 +824,7 @@ Value getaccountaddress(const Array& params, bool fHelp)
     if (fHelp || params.size() != 1)
         throw runtime_error(
             "getaccountaddress <account>\n"
-            "Returns the current Huntercoin address for receiving payments to this account.");
+            "Returns the current SmartMonsters address for receiving payments to this account.");
 
     // Parse the account first so we don't generate a key if there's an error
     string strAccount = AccountFromValue(params[0]);
@@ -842,14 +847,14 @@ Value setaccount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "setaccount <huntercoinaddress> <account>\n"
+            "setaccount <address> <account>\n"
             "Sets the account associated with the given address.");
 
     string strAddress = params[0].get_str();
     uint160 hash160;
     bool isValid = AddressToHash160(strAddress, hash160);
     if (!isValid)
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Huntercoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid SmartMonsters address");
 
 
     string strAccount;
@@ -879,7 +884,7 @@ Value getaccount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "getaccount <huntercoinaddress>\n"
+            "getaccount <address>\n"
             "Returns the account associated with the given address.");
 
     string strAddress = params[0].get_str();
@@ -960,7 +965,7 @@ Value sendtoaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 5)
         throw runtime_error(
-            "sendtoaddress <huntercoinaddress> <amount>"
+            "sendtoaddress <address> <amount>"
             " [comment] [comment-to] [tag-string]\n"
             "<amount> is a real and is rounded to the nearest 0.01\n"
             "tag-string can be used to attach data to the transaction"
@@ -971,7 +976,7 @@ Value sendtoaddress(const Array& params, bool fHelp)
     const std::string strAddress = params[0].get_str();
     if (!addrScript.SetBitcoinAddress (strAddress))
       throw JSONRPCError (RPC_INVALID_ADDRESS_OR_KEY,
-                          "invalid Huntercoin address");
+                          "invalid SmartMonsters address");
 
     // Amount
     const int64 nAmount = AmountFromValue(params[1]);
@@ -1049,14 +1054,14 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "getreceivedbyaddress <huntercoinaddress> [minconf=1]\n"
-            "Returns the total amount received by <huntercoinaddress> in transactions with at least [minconf] confirmations.");
+            "getreceivedbyaddress <address> [minconf=1]\n"
+            "Returns the total amount received by <address> in transactions with at least [minconf] confirmations.");
 
     // Bitcoin address
     string strAddress = params[0].get_str();
     CScript scriptPubKey;
     if (!scriptPubKey.SetBitcoinAddress(strAddress))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Huntercoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid SmartMonsters address");
     if (!IsMine(*pwalletMain,scriptPubKey))
         return (double)0.0;
 
@@ -1283,7 +1288,7 @@ Value sendfrom(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 3 || params.size() > 6)
         throw runtime_error(
-            "sendfrom <fromaccount> <tohuntercoinaddress> <amount> [minconf=1] [comment] [comment-to]\n"
+            "sendfrom <fromaccount> <toaddress> <amount> [minconf=1] [comment] [comment-to]\n"
             "<amount> is a real and is rounded to the nearest 0.01"
             + HelpRequiringPassphrase());
 
@@ -1355,7 +1360,7 @@ Value sendmany(const Array& params, bool fHelp)
 
         CScript scriptPubKey;
         if (!scriptPubKey.SetBitcoinAddress(strAddress))
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Huntercoin address:")+strAddress);
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid SmartMonsters address:")+strAddress);
         int64 nAmount = AmountFromValue(s.value_); 
         totalAmount += nAmount;
 
@@ -2069,15 +2074,15 @@ Value encryptwallet(const Array& params, bool fHelp)
     // slack space in .dat files; that is bad if the old data is
     // unencrypted private keys. So:
     StartShutdown();
-    return "wallet encrypted; Huntercoin server stopping, restart to run with encrypted wallet. The keypool has been flushed, you need to make a new backup.";
+    return "wallet encrypted; SmartMonsters server stopping, restart to run with encrypted wallet. The keypool has been flushed, you need to make a new backup.";
 }
 
 Value validateaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "validateaddress <huntercoinaddress>\n"
-            "Return information about <huntercoinaddress>.");
+            "validateaddress <address>\n"
+            "Return information about <address>.");
 
     string strAddress = params[0].get_str();
     uint160 hash160;
@@ -2116,10 +2121,10 @@ Value getwork(const Array& params, bool fHelp)
             "If [data] is specified, tries to solve the block and returns true if it was successful.");
 
     if (vNodes.empty())
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "huntercoin is not connected!");
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "SmartMonsters is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "huntercoin is downloading blocks...");
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "SmartMonsters is downloading blocks...");
 
     static map<uint256, pair<CBlock*, unsigned int> > mapNewBlock;
     static vector<CBlock*> vNewBlock;
@@ -2233,10 +2238,10 @@ Value getworkaux(const Array& params, bool fHelp)
             );
 
     if (vNodes.empty())
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Huntercoin is not connected!");
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "SmartMonsters is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Huntercoin is downloading blocks...");
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "SmartMonsters is downloading blocks...");
 
     static map<uint256, pair<CBlock*, unsigned int> > mapNewBlock;
     static vector<CBlock*> vNewBlock;
@@ -2400,10 +2405,10 @@ Value getmemorypool(const Array& params, bool fHelp)
     if (params.size() == 0)
     {
         if (vNodes.empty())
-            throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Huntercoin is not connected!");
+            throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "SmartMonsters is not connected!");
 
         if (IsInitialBlockDownload())
-            throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Huntercoin is downloading blocks...");
+            throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "SmartMonsters is downloading blocks...");
 
         static CReserveKey reservekey(pwalletMain);
 
@@ -2481,10 +2486,10 @@ Value getauxblock(const Array& params, bool fHelp)
             "the aux proof of work and returns true if it was successful.");
 
     if (vNodes.empty())
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Huntercoin is not connected!");
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "SmartMonsters is not connected!");
 
     if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Huntercoin is downloading blocks...");
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "SmartMonsters is downloading blocks...");
 
     static map<uint256, CBlock*> mapNewBlock;
     static vector<CBlock*> vNewBlock;
@@ -2607,7 +2612,7 @@ Value importprivkey(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 3)
         throw runtime_error(
-            "importprivkey <huntercoinprivkey> [label] [rescan=true]\n"
+            "importprivkey <privkey> [label] [rescan=true]\n"
             "Adds a private key (as returned by dumpprivkey) to your wallet."
             + HelpRequiringPassphrase());
 
@@ -2657,13 +2662,13 @@ Value importaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 3)
         throw runtime_error(
-            "importaddress <huntercoinaddress> [label] [rescan=true]\n"
+            "importaddress <address> [label] [rescan=true]\n"
             "Adds an address that can be watched as if it were in your wallet but cannot be used to spend.");
 
     string strAddress = params[0].get_str();
     uint160 hash160;
     if (!AddressToHash160(strAddress, hash160))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Huntercoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid SmartMonsters address");
 
     string strLabel = "";
     if (params.size() > 1)
@@ -2697,15 +2702,15 @@ Value dumpprivkey(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "dumpprivkey <huntercoinaddress>\n"
-            "Reveals the private key corresponding to <huntercoinaddress>."
+            "dumpprivkey <address>\n"
+            "Reveals the private key corresponding to <address>."
             + HelpRequiringPassphrase());
 
     string strAddress = params[0].get_str();
 
     uint160 hash160;
     if (!AddressToHash160(strAddress, hash160))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Huntercoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid SmartMonsters address");
         
     CPrivKey privKey;
     bool found = false;
@@ -2732,7 +2737,7 @@ Value signmessage(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 2)
         throw runtime_error(
-            "signmessage <huntercoinaddress> <message>\n"
+            "signmessage <address> <message>\n"
             "Sign a message with the private key of an address"
             + HelpRequiringPassphrase());
 
@@ -2773,7 +2778,7 @@ Value verifymessage(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 3)
         throw runtime_error(
-            "verifymessage <huntercoinaddress> <signature> <message>\n"
+            "verifymessage <address> <signature> <message>\n"
             "Verify a signed message");
 
     string strAddress  = params[0].get_str();
@@ -3100,7 +3105,7 @@ Value listunspent(const Array& params, bool fHelp)
         {
             string address = input.get_str();
             if (!IsValidBitcoinAddress(address))
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Huntercoin address: ")+input.get_str());
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid SmartMonsters address: ")+input.get_str());
             if (setAddress.count(address))
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+input.get_str());
            setAddress.insert(address);
@@ -3197,7 +3202,7 @@ Value createrawtransaction(const Array& params, bool fHelp)
     {
         string address = s.name_;
         if (!IsValidBitcoinAddress(address))
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Huntercoin address: ")+s.name_);
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid SmartMonsters address: ")+s.name_);
 
         if (setAddress.count(address))
             throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+s.name_);
@@ -3634,7 +3639,7 @@ string HTTPPost(const string& strMsg, const map<string,string>& mapRequestHeader
 {
     ostringstream s;
     s << "POST / HTTP/1.1\r\n"
-      << "User-Agent: huntercoin-json-rpc/" << FormatFullVersion() << "\r\n"
+      << "User-Agent: smartmonsters-json-rpc/" << FormatFullVersion() << "\r\n"
       << "Host: 127.0.0.1\r\n"
       << "Content-Type: application/json\r\n"
       << "Content-Length: " << strMsg.size() << "\r\n"
@@ -3664,7 +3669,7 @@ static string HTTPReply(int nStatus, const string& strMsg)
     if (nStatus == 401)
         return strprintf("HTTP/1.0 401 Authorization Required\r\n"
             "Date: %s\r\n"
-            "Server: huntercoin-json-rpc/%s\r\n"
+            "Server: smartmonsters-json-rpc/%s\r\n"
             "WWW-Authenticate: Basic realm=\"jsonrpc\"\r\n"
             "Content-Type: text/html\r\n"
             "Content-Length: 296\r\n"
@@ -3690,7 +3695,7 @@ static string HTTPReply(int nStatus, const string& strMsg)
             "Connection: close\r\n"
             "Content-Length: %d\r\n"
             "Content-Type: application/json\r\n"
-            "Server: huntercoin-json-rpc/%s\r\n"
+            "Server: smartmonsters-json-rpc/%s\r\n"
             "\r\n"
             "%s",
         nStatus,
@@ -4024,7 +4029,7 @@ void ThreadRPCServer2(void* parg)
     strRPCUserColonPass = mapArgs["-rpcuser"] + ":" + mapArgs["-rpcpassword"];
     if (strRPCUserColonPass == ":")
     {
-        string strWhatAmI = "To use huntercoind";
+        string strWhatAmI = "To use smartmonstersd";
         if (mapArgs.count("-server"))
             strWhatAmI = strprintf(_("To use the %s option"), "\"-server\"");
         else if (mapArgs.count("-daemon"))
@@ -4067,7 +4072,7 @@ void ThreadRPCServer2(void* parg)
     }
 #else
     if (fUseSSL)
-        throw runtime_error("-rpcssl=1, but huntercoin compiled without full openssl libraries.");
+        throw runtime_error("-rpcssl=1, but smartmonsters compiled without full openssl libraries.");
 #endif
 
     // Threads running async methods at the moment.
@@ -4266,7 +4271,7 @@ Object CallRPC(const string& strMethod, const Array& params)
         throw runtime_error("couldn't connect to server");
 #else
     if (fUseSSL)
-        throw runtime_error("-rpcssl=1, but huntercoin compiled without full openssl libraries.");
+        throw runtime_error("-rpcssl=1, but smartmonsters compiled without full openssl libraries.");
 
     ip::tcp::iostream stream(GetArg("-rpcconnect", "127.0.0.1"), GetArg("-rpcport", itostr(GetDefaultRPCPort())));
     if (stream.fail())
@@ -4473,7 +4478,7 @@ int CommandLineRPC(int argc, char *argv[])
 #if defined(__WXMSW__) && defined(GUI)
         // Windows GUI apps can't print to command line,
         // so settle for a message box yuck
-        MyMessageBox(strPrint, "Huntercoin", wxOK);
+        MyMessageBox(strPrint, "SmartMonsters", wxOK);
 #else
         fprintf((nRet == 0 ? stdout : stderr), "%s\n", strPrint.c_str());
 #endif

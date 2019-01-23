@@ -775,7 +775,7 @@ void FormatException(char* pszMessage, std::exception* pex, const char* pszThrea
     pszModule[0] = '\0';
     GetModuleFileNameA(NULL, pszModule, sizeof(pszModule));
 #else
-    const char* pszModule = "huntercoin";
+    const char* pszModule = "smartmonsters";
 #endif
     if (pex)
         snprintf(pszMessage, 1000,
@@ -801,7 +801,7 @@ void PrintException(std::exception* pex, const char* pszThread)
     strMiscWarning = pszMessage;
 #ifdef GUI
     if (wxTheApp && !fDaemon)
-        MyMessageBox(pszMessage, "Huntercoin", wxOK | wxICON_ERROR);
+        MyMessageBox(pszMessage, "SmartMonsters", wxOK | wxICON_ERROR);
 #endif
     throw;
 }
@@ -814,9 +814,9 @@ void ThreadOneMessageBox(string strMessage)
         return;
     fMessageBoxOpen = true;
 #ifdef GUI
-    uiInterface.ThreadSafeMessageBox(strMessage, "Huntercoin", wxOK | wxICON_EXCLAMATION);
+    uiInterface.ThreadSafeMessageBox(strMessage, "SmartMonsters", wxOK | wxICON_EXCLAMATION);
 #else
-    ThreadSafeMessageBox(strMessage, "Huntercoin", wxOK | wxICON_EXCLAMATION);
+    ThreadSafeMessageBox(strMessage, "SmartMonsters", wxOK | wxICON_EXCLAMATION);
 #endif
     fMessageBoxOpen = false;
 }
@@ -881,9 +881,9 @@ string GetDefaultDataDir()
 {
     string strSuffix = GetDefaultDataDirSuffix();
 
-    // Windows: C:\Documents and Settings\username\Application Data\Huntercoin
-    // Mac: ~/Library/Application Support/Huntercoin
-    // Unix: ~/.huntercoin
+    // Windows: C:\Documents and Settings\username\Application Data\Roaming\SmartMonsters
+    // Mac: ~/Library/Application Support/SmartMonsters
+    // Unix: ~/.smartmonsters
 #ifdef __WXMSW__
     // Windows
     return MyGetSpecialFolderPath(CSIDL_APPDATA, true) + "\\" + strSuffix;
@@ -930,9 +930,8 @@ void GetDataDir(char* pszDir)
         char* p = pszDir + strlen(pszDir);
         if (p > pszDir && p[-1] != '/' && p[-1] != '\\')
             *p++ = '/';
-        // alphatest -- testnet
-//        strcpy(p, "testnet");
-        strcpy(p, "testnet_alpha2");
+        // alphatest -- testnet folder
+        strcpy(p, "testnet_beta");
         nVariation += 2;
     }
     static bool pfMkdir[4];
@@ -969,18 +968,16 @@ void createConf()
     pConf.open(GetConfigFile().c_str());
     pConf << "rpcuser=user\nrpcpassword="
     + randomStrGen(15)
-    + "\nrpcport=8399"
-    + "\nport=8398"
+    + "\nrpcport=8397"
+    + "\nport=8396"
     + "\n#(0=off, 1=on) daemon - run in the background as a daemon and accept commands"
     + "\ndaemon=0"
     + "\n#(0=off, 1=on) server - accept command line and JSON-RPC commands"
     + "\nserver=1"
     + "\nrpcallowip=127.0.0.1"
     + "\ntestnet=0"
-// alphatest -- testnet (ignores "testnet=0")
-    + "\naddnode=69.90.132.108"
-    + "\n#(0=off, 1=on) if started this way instead of 'setgenerate', cpu miner uses about 20% of 1 cpu thread"
-    + "\ngen=1"
+// alphatest -- testnet (hardcoded nodes if any)
+    + "\naddnode=64.34.218.39"
     + "\nalgo=scrypt";
     pConf.close();
 }
@@ -1019,7 +1016,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
     
     for (pod::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it)
     {
-        // Don't overwrite existing settings so command line settings override huntercoin.conf
+        // Don't overwrite existing settings so command line settings override smartmonsters.conf
         string strKey = string("-") + it->string_key;
         if (mapSettingsRet.count(strKey) == 0)
             mapSettingsRet[strKey] = it->value[0];
@@ -1030,7 +1027,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 string GetPidFile()
 {
     namespace fs = boost::filesystem;
-    fs::path pathConfig(GetArg("-pid", "huntercoind.pid"));
+    fs::path pathConfig(GetArg("-pid", "smartmonstersd.pid"));
     if (!pathConfig.is_complete())
         pathConfig = fs::path(GetDataDir()) / pathConfig;
     return pathConfig.string();
@@ -1154,7 +1151,7 @@ void AddTimeData(unsigned int ip, int64 nTime)
                     string strMessage = _("Warning: Please check that your computer's date and time are correct.  If your clock is wrong Huntercoin will not work properly.");
                     strMiscWarning = strMessage;
                     printf("*** %s\n", strMessage.c_str());
-                    boost::thread(boost::bind(MyMessageBox, strMessage+" ", string("Huntercoin"), wxOK | wxICON_EXCLAMATION, (wxWindow*)NULL, -1, -1));
+                    boost::thread(boost::bind(MyMessageBox, strMessage+" ", string("SmartMonsters"), wxOK | wxICON_EXCLAMATION, (wxWindow*)NULL, -1, -1));
                 }
             }
         }

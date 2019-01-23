@@ -28,7 +28,7 @@ QT_TRANSLATE_NOOP("huntercoin-core", ""
 "Bind to given address and always listen on it. Use [host]:port notation for "
 "IPv6"),
 QT_TRANSLATE_NOOP("huntercoin-core", ""
-"Cannot obtain a lock on data directory %s. Huntercoin is probably already "
+"Cannot obtain a lock on data directory %s. SmartMonsters is probably already "
 "running."),
 QT_TRANSLATE_NOOP("huntercoin-core", ""
 "Error initializing database environment %s! To recover, BACKUP THAT "
@@ -47,7 +47,7 @@ QT_TRANSLATE_NOOP("huntercoin-core", ""
 "Execute command when the best block changes (%s in cmd is replaced by block "
 "hash)"),
 QT_TRANSLATE_NOOP("huntercoin-core", ""
-"Listen for JSON-RPC connections on <port> (default: 8399 or testnet: 18399)"),
+"Listen for JSON-RPC connections on <port> (default: 8397 or testnet: 18397)"),
 QT_TRANSLATE_NOOP("huntercoin-core", ""
 "Number of seconds to keep misbehaving peers from reconnecting (default: "
 "86400)"),
@@ -60,7 +60,7 @@ QT_TRANSLATE_NOOP("huntercoin-core", ""
 "This is a pre-release test build - use at your own risk - do not use for "
 "mining or merchant applications"),
 QT_TRANSLATE_NOOP("huntercoin-core", ""
-"Unable to bind to %s on this computer. Huntercoin is probably already running."),
+"Unable to bind to %s on this computer. SmartMonsters is probably already running."),
 QT_TRANSLATE_NOOP("huntercoin-core", ""
 "Warning: -paytxfee is set very high! This is the transaction fee you will "
 "pay if you send a transaction."),
@@ -69,7 +69,7 @@ QT_TRANSLATE_NOOP("huntercoin-core", ""
 "or other nodes may need to upgrade."),
 QT_TRANSLATE_NOOP("huntercoin-core", ""
 "Warning: Please check that your computer's date and time are correct! If "
-"your clock is wrong Huntercoin will not work properly."),
+"your clock is wrong SmartMonsters will not work properly."),
 QT_TRANSLATE_NOOP("huntercoin-core", ""
 "Warning: error reading wallet.dat! All keys read correctly, but transaction "
 "data or address book entries might be missing or incorrect."),
@@ -88,7 +88,7 @@ QT_TRANSLATE_NOOP("huntercoin-core", "Add a node to connect to and attempt to ke
 QT_TRANSLATE_NOOP("huntercoin-core", "Allow DNS lookups for -addnode, -seednode and -connect"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Allow JSON-RPC connections from specified IP address"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Attempt to recover private keys from a corrupt wallet.dat"),
-QT_TRANSLATE_NOOP("huntercoin-core", "Huntercoin version"),
+QT_TRANSLATE_NOOP("huntercoin-core", "SmartMonsters version"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Block creation options:"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Cannot downgrade wallet"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Cannot initialize keypool"),
@@ -107,7 +107,7 @@ QT_TRANSLATE_NOOP("huntercoin-core", "Error initializing block database"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Error loading block database"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Error loading wallet.dat"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Error loading wallet.dat: Wallet corrupted"),
-QT_TRANSLATE_NOOP("huntercoin-core", "Error loading wallet.dat: Wallet requires newer version of Huntercoin"),
+QT_TRANSLATE_NOOP("huntercoin-core", "Error loading wallet.dat: Wallet requires newer version of SmartMonsters"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Error opening block database"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Error"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Error: Disk space is low!"),
@@ -142,7 +142,7 @@ QT_TRANSLATE_NOOP("huntercoin-core", "Invalid -tor address: '%s'"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Invalid amount for -paytxfee=<amount>: '%s'"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Invalid amount"),
 QT_TRANSLATE_NOOP("huntercoin-core", "List commands"),
-QT_TRANSLATE_NOOP("huntercoin-core", "Listen for connections on <port> (default: 8398 or testnet: 18398)"),
+QT_TRANSLATE_NOOP("huntercoin-core", "Listen for connections on <port> (default: 8396 or testnet: 18396)"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Loading addresses..."),
 QT_TRANSLATE_NOOP("huntercoin-core", "Loading block index..."),
 QT_TRANSLATE_NOOP("huntercoin-core", "Loading wallet..."),
@@ -163,7 +163,7 @@ QT_TRANSLATE_NOOP("huntercoin-core", "Rescanning..."),
 QT_TRANSLATE_NOOP("huntercoin-core", "Run in the background as a daemon and accept commands"),
 QT_TRANSLATE_NOOP("huntercoin-core", "SSL options: (see the Bitcoin Wiki for SSL setup instructions)"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Select the version of socks proxy to use (4-5, default: 5)"),
-QT_TRANSLATE_NOOP("huntercoin-core", "Send command to -server or huntercoind"),
+QT_TRANSLATE_NOOP("huntercoin-core", "Send command to -server or smartmonstersd"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Send commands to node running on <ip> (default: 127.0.0.1)"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Send trace/debug info to console instead of debug.log file"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Send trace/debug info to debugger"),
@@ -174,10 +174,10 @@ QT_TRANSLATE_NOOP("huntercoin-core", "Set key pool size to <n> (default: 100)"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Set maximum block size in bytes (default: 250000)"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Set minimum block size in bytes (default: 0)"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Shrink debug.log file on client startup (default: 1 when no -debug)"),
-QT_TRANSLATE_NOOP("huntercoin-core", "Specify configuration file (default: huntercoin.conf)"),
+QT_TRANSLATE_NOOP("huntercoin-core", "Specify configuration file (default: smartmonsters.conf)"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Specify connection timeout in milliseconds (default: 5000)"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Specify data directory"),
-QT_TRANSLATE_NOOP("huntercoin-core", "Specify pid file (default: huntercoind.pid)"),
+QT_TRANSLATE_NOOP("huntercoin-core", "Specify pid file (default: smartmonstersd.pid)"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Specify your own public address"),
 QT_TRANSLATE_NOOP("huntercoin-core", "System error: "),
 QT_TRANSLATE_NOOP("huntercoin-core", "This help message"),
@@ -196,7 +196,7 @@ QT_TRANSLATE_NOOP("huntercoin-core", "Use the test network"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Username for JSON-RPC connections"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Verifying database..."),
 QT_TRANSLATE_NOOP("huntercoin-core", "Verifying wallet integrity..."),
-QT_TRANSLATE_NOOP("huntercoin-core", "Wallet needed to be rewritten: restart Huntercoin to complete"),
+QT_TRANSLATE_NOOP("huntercoin-core", "Wallet needed to be rewritten: restart SmartMonsters to complete"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Warning"),
 QT_TRANSLATE_NOOP("huntercoin-core", "Warning: This version is obsolete, upgrade required!"),
 QT_TRANSLATE_NOOP("huntercoin-core", "You need to rebuild the databases using -reindex to change -txindex"),

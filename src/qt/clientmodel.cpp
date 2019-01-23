@@ -57,9 +57,9 @@ QDateTime ClientModel::getLastBlockDate() const
     {
         // Genesis block's time
         if (fTestNet)
-            return QDateTime::fromTime_t(1296688602);
+            return QDateTime::fromTime_t(1532790938);
         else
-            return QDateTime::fromTime_t(1303000001);
+            return QDateTime::fromTime_t(1532961035);  // alphatest -- genesis
     }
 }
 
@@ -164,7 +164,7 @@ bool ClientModel::isReleaseVersion() const
 
 QString ClientModel::clientName() const
 {
-    const std::string CLIENT_NAME = "Huntercoin-Qt";
+    const std::string CLIENT_NAME = "smartmonsters-qt";
     return QString::fromStdString(CLIENT_NAME);
 }
 

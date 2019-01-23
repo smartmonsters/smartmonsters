@@ -285,6 +285,7 @@ bool Move::Parse(const PlayerID &player, const std::string &json)
         Object subobj = v.get_obj();
         bool bWaypoints = false;
         std::vector<Coord> wp;
+
         if (!ParseWaypoints(subobj, wp, bWaypoints))
             return false;
         bool bDestruct;
@@ -296,6 +297,7 @@ bool Move::Parse(const PlayerID &player, const std::string &json)
             destruct.insert(i);
         if (bWaypoints)
             waypoints[i] = wp;
+
 //        if (bDestruct)
 //        {
 //            if (bWaypoints)
@@ -925,7 +927,8 @@ void CharacterState::MoveTowardsWaypointX_Merchants(RandomGenerator &rnd, int co
         // we actually pay coins to this merch
         else if (AI_TILE_IS_MERCHANT(x, y, MERCH_RING_WORD_RECALL))
         {
-            AI_BUY_FROM_MERCHANT(ai_slot_ring, AI_ITEM_WORD_RECALL, MERCH_RING_WORD_RECALL)
+            if (ai_slot_ring != AI_ITEM_LIFE_SAVING)
+              AI_BUY_FROM_MERCHANT(ai_slot_ring, AI_ITEM_WORD_RECALL, MERCH_RING_WORD_RECALL)
         }
         else if (AI_TILE_IS_MERCHANT(x, y, MERCH_RING_IMMORTALITY))
         {
@@ -1042,43 +1045,17 @@ void CharacterState::MoveTowardsWaypointX_Merchants(RandomGenerator &rnd, int co
 
         if (NPCROLE_IS_MONSTER(ai_npc_role))
         {
-            if ((out_height >= RPG_HOTFIX_2) && (Cache_min_version >= 2020400))
-            {
-                // tp exit of your base
-                int xbase = POI_pos_xb[color_of_moving_char * 2 + 1];
-                int ybase = POI_pos_yb[color_of_moving_char * 2 + 1];
-                coord.x = xbase;
-                coord.y = ybase;
-            }
-            else
-            {
-                int poi_home = POIINDEX_MONSTER_FIRST;
-                if (ai_npc_role == MONSTER_REAPER) poi_home += 4;
-                else if (ai_npc_role == MONSTER_REDHEAD) poi_home += 8;
-
-                poi_home += color_of_moving_char;
-                if ((poi_home < POIINDEX_MONSTER_FIRST) || (poi_home > POIINDEX_MONSTER_LAST)) poi_home = POIINDEX_MONSTER_FIRST;
-
-                coord.x = POI_pos_xa[poi_home];
-                coord.y = POI_pos_ya[poi_home];
-            }
+            // tp exit of your base
+            int xbase = POI_pos_xb[color_of_moving_char * 2 + 1];
+            int ybase = POI_pos_yb[color_of_moving_char * 2 + 1];
+            coord.x = xbase;
+            coord.y = ybase;
         }
         else
         {
-            if ((out_height >= RPG_HOTFIX_1) && (Cache_min_version >= 2020300))
-            {
-                // prepare to go into stasis
-                coord.x = Merchant_base_x[MERCH_STASIS];
-                coord.y = Merchant_base_y[MERCH_STASIS];
-            }
-            else
-            {
-                // tp exit of your base
-                int xbase = POI_pos_xb[color_of_moving_char * 2 + 1];
-                int ybase = POI_pos_yb[color_of_moving_char * 2 + 1];
-                coord.x = xbase;
-                coord.y = ybase;
-            }
+            // prepare to go into stasis
+            coord.x = Merchant_base_x[MERCH_STASIS];
+            coord.y = Merchant_base_y[MERCH_STASIS];
         }
 
         ai_idle_time = 0;
@@ -1104,22 +1081,19 @@ void CharacterState::MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int c
     int clevel = rpg_slot_spell > 0 ? RPG_CLEVEL_FROM_LOOT(loot.nAmount) : 1;
 
     // Starter zones
-    if ((out_height >= RPG_HOTFIX_2) && (Cache_min_version >= 2020400))
-    {
-        int x = coord.x;
-        int y = coord.y;
-        if (clevel > 3)
-            if ((y > START_ZONE_FIRSTTILE) && (y < START_ZONE_LASTTILE))
-            {
-                if ((x < START_ZONE_SIZE) || (x >= MAP_WIDTH - START_ZONE_SIZE))
-                    clevel = 3;
-            }
-            else if ((x > START_ZONE_FIRSTTILE) && (x < START_ZONE_LASTTILE))
-            {
-                if ((y < START_ZONE_SIZE) || (y >= MAP_HEIGHT - START_ZONE_SIZE))
-                    clevel = 3;
-            }
-    }
+    int x = coord.x;
+    int y = coord.y;
+    if (clevel > 3)
+        if ((y > START_ZONE_FIRSTTILE) && (y < START_ZONE_LASTTILE))
+        {
+            if ((x < START_ZONE_SIZE) || (x >= MAP_WIDTH - START_ZONE_SIZE))
+                clevel = 3;
+        }
+        else if ((x > START_ZONE_FIRSTTILE) && (x < START_ZONE_LASTTILE))
+        {
+            if ((y < START_ZONE_SIZE) || (y >= MAP_HEIGHT - START_ZONE_SIZE))
+                clevel = 3;
+        }
 
     int base_range = clevel;
     int clevel_for_array = clevel - 1;
@@ -1206,11 +1180,8 @@ void CharacterState::MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int c
                 max_range = 3;
 
                 // Better Arbalest
-                if ((out_height >= RPG_HOTFIX_2) && (Cache_min_version >= 2020400))
-                {
-                    if (clevel == 3)
-                        max_range = 4;
-                }
+                if (clevel == 3)
+                    max_range = 4;
             }
             else
             {
@@ -1385,9 +1356,8 @@ void CharacterState::MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int c
                         target_x = u;
                         target_y = v;
                     }
-// Better Arbalest
-if ((out_height >= RPG_HOTFIX_2) && (Cache_min_version >= 2020400))
-{
+
+                    // Better Arbalest
                     // arbalest strength 2 range 3 or 4
                     if (rpg_slot_spell == AI_ATTACK_XBOW3)
                     // TODO: line of sight
@@ -1398,21 +1368,6 @@ if ((out_height >= RPG_HOTFIX_2) && (Cache_min_version >= 2020400))
                         target_x = u;
                         target_y = v;
                     }
-}
-else
-{
-                    // arbalest strength 1 range 3
-                    if (rpg_slot_spell == AI_ATTACK_XBOW3)
-                    if (dist <= 3)
-                    // TODO: line of sight
-                    if (AI_RESISTFLAGMAP[v][u][k] & RESIST_DEATH0)
-                    if (dist < target_dist)
-                    {
-                        target_dist = dist;
-                        target_x = u;
-                        target_y = v;
-                    }
-}
 
                     // add item part 8 -- the logic to fire the weapon (decide whether an hit would kill the enemy)
                     // lightning strength 1, normal spell range
@@ -1458,11 +1413,8 @@ else
                     Damageflagmap[target_y][target_x][k] |= DMGMAP_DEATH1;
 
                     // Better Arbalest
-                    if ((out_height >= RPG_HOTFIX_2) && (Cache_min_version >= 2020400))
-                    {
-                        if (rpg_slot_spell == AI_ATTACK_XBOW3)
-                            Damageflagmap[target_y][target_x][k] |= DMGMAP_DEATH2; // (DMGMAP_DEATH1 | DMGMAP_DEATH2)
-                    }
+                    if (rpg_slot_spell == AI_ATTACK_XBOW3)
+                        Damageflagmap[target_y][target_x][k] |= DMGMAP_DEATH2; // (DMGMAP_DEATH1 | DMGMAP_DEATH2)
                 }
                 ai_chat = 4;
             }
@@ -2093,9 +2045,8 @@ else
 
                         int d = Distance_To_Tile[best_v][best_u][j2][i2];
                         if (d < 0) continue;
-// fix random suicidal behavior
-if ((out_height >= RPG_HOTFIX_2) && (Cache_min_version >= 2020400))
-{
+
+
                         if (((!panic) && (d < d_best)) || ((panic) && (d > d_best)))
                         {
                             int xn = x + i2 - i;
@@ -2123,37 +2074,6 @@ if ((out_height >= RPG_HOTFIX_2) && (Cache_min_version >= 2020400))
                             ai_moves++;
                             }
                         }
-}
-else
-{
-                        if ((d < d_best) || ((panic) && (d > d_best)))
-                        {
-                            int xn = x + i2 - i;
-                            int yn = y + j2 - j;
-                            if ((IsInsideMap(xn, yn)) && ((AI_merchantbasemap[yn][xn] < AI_MBASEMAP_AVOID_MIN) || (d == 0)))
-                            {
-                            d_best = d;
-                            success_c.x = ai_new_x[0] = xn; // x + i2 - i;  // this way we dont have to call the RNG if there's only 1 choice
-                            success_c.y = ai_new_y[0] = yn; // y + j2 - j;
-                            success2 = true;
-
-                            ai_moves = 1;
-
-                            if (panic) reason = AI_REASON_RUN;
-                            }
-                        }
-                        else if ((success2) && (d == d_best) && (ai_moves < AI_NUM_MOVES))
-                        {
-                            int xn = x + i2 - i;
-                            int yn = y + j2 - j;
-                            if ((IsInsideMap(xn, yn)) && ((AI_merchantbasemap[yn][xn] < AI_MBASEMAP_AVOID_MIN) || (d == 0)))
-                            {
-                            ai_new_x[ai_moves] = xn; // x + i2 - i;
-                            ai_new_y[ai_moves] = yn; // y + j2 - j;
-                            ai_moves++;
-                            }
-                        }
-}
                     }
 
 
@@ -2395,7 +2315,7 @@ else
                 }
 
                 // already have favorite area
-                else if ((out_height >= RPG_HOTFIX_1) && (Cache_min_version >= 2020300) && (ai_fav_harvest_poi != 0))
+                else if (ai_fav_harvest_poi != 0)
                 {
                     int k0 = ai_fav_harvest_poi;
                     int d = d_best;
@@ -2429,65 +2349,6 @@ else
                         {
                             if ((POI_type[k] == 5 + color_of_moving_char) ||   // tp to your base
                                 (POI_type[k] == 1 + color_of_moving_char))     // tp away from your base
-                            {
-                                int x_tp_exit = POI_pos_xb[k];
-                                int y_tp_exit = POI_pos_yb[k];
-                                if (k0 < AI_NUM_POI)
-                                {
-                                    // distance to tp                  distance tp exit to destination
-                                    int d = Distance_To_POI[k][y][x] + Distance_To_POI[k0][y_tp_exit][x_tp_exit];
-                                    if (d < d_best)
-                                    {
-                                        d_best = d;
-                                        k_best = k;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (k_best >= 0)
-                    {
-                        ai_reason = AI_REASON_TO_OUTER_POI;
-                    }
-                }
-
-                // This was only used before RPG_HOTFIX_1 lockin:
-                // already have favorite (outer ring) harvest area
-                else if ((ai_state & AI_STATE_FARM_OUTER_RING) && (ai_fav_harvest_poi != 0))
-                {
-                    int k0 = ai_fav_harvest_poi;
-                    int d = d_best;
-
-                    // set directly if in array bounds
-                    if ((k0 >= 0) && (k0 < AI_NUM_POI))
-                    {
-                        d = Distance_To_POI[k0][y][x];
-                    }
-                    if (d < d_best)
-                    {
-                        d_best = d;
-                        k_best = k0;
-                    }
-
-                    // don't try to use teleporters if running away
-                    if (!on_the_run)
-                    {
-                        // knowledge of an opponent's exact travel time till encounter would be exploitable
-                        if ((RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(out_height) % 25 == 5) &&
-                            (rnd.GetIntRnd(2) == 0) &&
-                            (!panic))
-                        {
-                            ai_reason = AI_REASON_PICKNIC;
-
-                            from = coord; // no further move
-                            return;
-                        }
-
-                        for (int k = POIINDEX_TP_FIRST; k <= POIINDEX_TP_LAST; k++) // <- not needed if we check only 1 poi
-                        {
-                            // tp to your base
-                            if (POI_type[k] == 5 + color_of_moving_char)
                             {
                                 int x_tp_exit = POI_pos_xb[k];
                                 int y_tp_exit = POI_pos_yb[k];
@@ -2569,64 +2430,6 @@ else
 
                 }
 #endif
-                // This was only used before RPG_HOTFIX_1 lockin:
-                // already have favorite (center) harvest area
-                else if ( (!(ai_state & AI_STATE_FARM_OUTER_RING)) && (ai_fav_harvest_poi != 0))
-                {
-                    int k0 = ai_fav_harvest_poi;
-                    int d = d_best;
-
-                    // set directly if in array bounds
-                    if ((k0 >= 0) && (k0 < AI_NUM_POI))
-                    {
-                        d = Distance_To_POI[k0][y][x];
-                    }
-                    if (d < d_best)
-                    {
-                        d_best = d;
-                        k_best = k0;
-                    }
-
-                    // don't try to use teleporters if running away
-                    if (!on_the_run)
-                    {
-                        // knowledge of an opponent's exact travel time till encounter would be exploitable
-                        if ((RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(out_height) % 25 == 5) &&
-                            (rnd.GetIntRnd(2) == 0) &&
-                            (!panic))
-                        {
-                            ai_reason = AI_REASON_PICKNIC;
-
-                            from = coord; // no further move
-                            return;
-                        }
-
-                        for (int k = POIINDEX_TP_FIRST; k <= POIINDEX_TP_LAST; k++) // <- not needed if we check only 1 poi
-                        {
-                            // tp away from your spawn
-                            if (POI_type[k] == 1 + color_of_moving_char)
-                            {
-                                int x_tp_exit = POI_pos_xb[k];
-                                int y_tp_exit = POI_pos_yb[k];
-                                if (k0 < AI_NUM_POI)
-                                {
-                                    // distance to tp                  distance tp exit to destination
-                                    int d = Distance_To_POI[k][y][x] + Distance_To_POI[k0][y_tp_exit][x_tp_exit];
-                                    if (d < d_best)
-                                    {
-                                        d_best = d;
-                                        k_best = k;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (k_best >= 0)
-                    {
-                        ai_reason = AI_REASON_TO_INNER_POI;
-                    }
-                }
 #ifdef ALLOW_AUTOCHOOSE_HARVEST_POI
                 // choose your favorite (center) harvest area
                 // (will do 1 step towards it before considering tp)
@@ -3312,10 +3115,13 @@ GameState::GameState()
     dao_BestRequestFinal = 0;
     dao_BountyPreviousWeek = 0;
     dao_AdjustUpkeep = 0;
-    dao_MinVersion = 2020200; // init value for block height 0, don't change
+    dao_MinVersion = 2020500; // init value for block height 0, don't change
     // alphatest -- checkpoints
     dcpoint_height1 = 0;
     dcpoint_height2 = 0;
+    // alphatest -- reserved for tokens
+    gw_count = 0;
+    gw_first_free = 0;
 }
 
 void
@@ -3908,11 +3714,12 @@ GameState::KillRangedAttacks (StepResult& step)
 
             // hunter messages (for manual destruct)
             CharacterID chid(p.first, i);
-            // printf("testing for destruct: character name=%s\n", chid.ToString().c_str());
+//printf("testing for destruct: character name=%s\n", chid.ToString().c_str());
 
             if (Huntermsg_idx_destruct > 0)
             if (ch.ai_npc_role == 0) // players only
             {
+//printf("testing for destruct: %d messages\n", Huntermsg_idx_destruct);
                 for (int tmp_i = 0; tmp_i < Huntermsg_idx_destruct; tmp_i++)
                 {
                     if (tmp_i >= HUNTERMSG_CACHE_MAX) break;
@@ -3935,7 +3742,7 @@ GameState::KillRangedAttacks (StepResult& step)
                             // hack for easy setup
                             if (Rpg_MissingMerchantCount > 0)
                                 ch.ai_state2 |= AI_STATE2_DEATH_DEATH;
-//                                printf("set deathflag for  character name=%s\n", chid.ToString().c_str());
+                                printf("set deathflag for character name=%s\n", chid.ToString().c_str());
                         }
                     }
                 }
@@ -3960,7 +3767,9 @@ GameState::KillRangedAttacks (StepResult& step)
                     {
                         ilive = 1; // technically
                         ch.ai_npc_role = Rpg_MissingMerchantPerColor[tmp_color];
-                        Rpg_MissingMerchantPerColor[tmp_color] = 0; // we need only 1
+                        Rpg_MissingMerchantPerColor[tmp_color] = 0; // we can only process 1 per block
+
+                        printf("attempt to create merchant, character name=%s\n", chid.ToString().c_str());
                     }
 
                     else if ( (AI_IS_SAFEZONE(x, y)) ||
@@ -4203,15 +4012,7 @@ GameState::Pass0_CacheDataForGame ()
 
             if ((tmp_m >= 0) && (tmp_m < RPG_NPCROLE_MAX))
             {
-                if ((nHeight >= RPG_HOTFIX_1) && (Cache_min_version >= 2020300))
-                {
-                    if ( ! (ch.ai_state3 & AI_STATE3_STASIS_NOUPKEEP))
-                    {
-                        Rpg_PopulationCount[tmp_m]++;
-                        Rpg_WeightedPopulationCount[tmp_m] += tmp_score;
-                    }
-                }
-                else
+                if ( ! (ch.ai_state3 & AI_STATE3_STASIS_NOUPKEEP))
                 {
                     Rpg_PopulationCount[tmp_m]++;
                     Rpg_WeightedPopulationCount[tmp_m] += tmp_score;
@@ -4579,7 +4380,10 @@ GameState::Pass1_DAO()
                     }
                     else
                     {
-                        tmp_weight += (ch.loot.nAmount);
+                        tmp_weight += ch.loot.nAmount;
+                        if (i == 0)
+                            tmp_weight += p.second.coinAmount;
+
 
                         if (bountycycle_block == 0)
                         if (ch.rpg_rations == 0) // make sure rations can't be farmed through voting (takes care of stasis)
@@ -5378,8 +5182,8 @@ GameState::PrintPlayerStats()
 
             fprintf(fp, "\n\n Player votes\n");
             fprintf(fp, " ------------\n\n");
-            fprintf(fp, "                 Total      Voting      Vote                     Request\n");
-            fprintf(fp, "      Name       Coins       Coins      block   Vote             block  Request            Fee             Comment\n\n");
+            fprintf(fp, "                 Locked    Looted    Voting   Tokens                           Bounty\n");
+            fprintf(fp, "      Name       Coins     Coins     Coins                Vote    block        Request  Fee     block             Comment\n\n");
 
             BOOST_FOREACH(PAIRTYPE(const PlayerID, PlayerState) &p, players)
             {
@@ -5405,7 +5209,9 @@ GameState::PrintPlayerStats()
                     }
                     else
                     {
-                        tmp_weight += (ch.loot.nAmount);
+                        tmp_weight += ch.loot.nAmount;
+                        if (i == 0)
+                            tmp_weight += p.second.coinAmount;
                     }
 
                     total_loot += ch.loot.nAmount;
@@ -5416,30 +5222,17 @@ GameState::PrintPlayerStats()
                 bool is_stale = ((p.second.msg_request_block < bountycycle_start_prev) && (p.second.msg_vote_block < bountycycle_start_prev));
                 if (is_stale)
                     fprintf(fp, "<font color=gray>");
-//                fprintf(fp, "%10s   %9s    %7d %7s %7s  %7d %7s %7s  %7s %7s    %s", p.first.c_str(), FormatMoney(total_loot / CENT * CENT).c_str(),
+//                fprintf(fp, "%10s   %9s    %7d %7s %7s     %7d %7s %7s  %7s %7s    %s", p.first.c_str(), FormatMoney(total_loot / CENT * CENT).c_str(),
 //                        p.second.msg_vote_block, FormatMoney(p.second.coins_vote).c_str(), p.second.msg_vote.c_str(),
 //                        p.second.msg_request_block, FormatMoney(p.second.coins_request).c_str(), p.second.msg_request.c_str(),
 //                        FormatMoney(p.second.coins_fee).c_str(), p.second.msg_fee.c_str(), p.second.msg_comment.c_str());
-                char c;
-                char buf[100];
-                int ls = p.second.msg_comment.length();
-                if (ls > 99) ls = 99;
-                for (int l = 0; l < ls; l++)
-                {
-                    c = p.second.msg_comment[l];
-                    if ( ((c >= 'A') && (c <= 'Z')) ||
-                         ((c >= 'a') && (c <= 'z')) ||
-                         ((c >= '0') && (c <= '9')) ||
-                         ((c == ' ') || (c == '_') || (c == '-') || (c == ':') || (c == '/') || (c == '.') || (c == '!')) )
-                        buf[l] = c;
-                    else
-                        buf[l] = ' ';
-                }
-                buf[ls] = '\0';
-                fprintf(fp, "%10s   %9s   %9s    %7d %7s          %7d %7s          %7s            %s", p.first.c_str(), FormatMoney(total_loot / CENT * CENT).c_str(), FormatMoney(tmp_weight / CENT * CENT).c_str(),
-                        p.second.msg_vote_block, FormatMoney(p.second.coins_vote).c_str(),
-                        p.second.msg_request_block, FormatMoney(p.second.coins_request).c_str(),
-                        FormatMoney(p.second.coins_fee).c_str(), buf);
+
+                sanitize_string(p.second.msg_comment);
+                fprintf(fp, "%10s   %9s %9s %9s   %5d     %7s %7d       %7s %7s %7d       %s",
+                        p.first.c_str(), FormatMoney(p.second.coinAmount).c_str(), FormatMoney(total_loot / CENT * CENT).c_str(), FormatMoney(tmp_weight / CENT * CENT).c_str(), int((tmp_weight / COIN / 10000) * 1000),
+                        FormatMoney(p.second.coins_vote).c_str(), p.second.msg_vote_block,
+                        FormatMoney(p.second.coins_request).c_str(), FormatMoney(p.second.coins_fee).c_str(), p.second.msg_request_block,
+                        Displaycache_cleanstring);
                 if (is_stale)
                     fprintf(fp, "</font>");
                 fprintf(fp, "\n");

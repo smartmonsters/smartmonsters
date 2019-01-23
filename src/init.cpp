@@ -70,7 +70,7 @@ void Shutdown(void* parg)
         delete pwalletMain;
         CreateThread(ExitTimeout, NULL);
         MilliSleep(50);
-        printf("huntercoin exiting\n\n");
+        printf("smartmonsters exiting\n\n");
         fExit = true;
 #ifndef GUI
         // ensure non-UI client gets exited here, but let Bitcoin-Qt reach 'return 0;' in bitcoin.cpp
@@ -163,8 +163,8 @@ short POI_type[AI_NUM_POI]   = {  1,   5,   2,   6,   3,   7,   4,   8,  13,  14
 //       and (in case of teleport merchant) the teleporters POI_type
 //                                                                                                2*armor                                                            team score info         armor 4*book
 //                                           8*teleport                            info info  inn buff splint SoPC   A+RoWR AoPM estoc xbow1+3 champ RoLS   2*armor  v    3*ration     sword plate m+r rest surv cour  2*staff  AoLS lightning
-short Merchant_base_x[NUM_MERCHANTS] =   {0,  7, 496, 494,  13, 246, 255, 255, 244, 208, 208, 250, 260, 261, 255, 250, 245, 254, 235, 265, 269, 257, 275, 264, 236, 212, 273, 273, 272, 260, 262, 230, 232, 237, 235, 251, 250, 240, 236};
-short Merchant_base_y[NUM_MERCHANTS] =   {0,  8,   4, 492, 491, 243, 243, 255, 254, 264, 265, 237, 252, 228, 251, 248, 249, 245, 255, 239, 240, 238, 246, 237, 262, 258, 247, 249, 250, 249, 226, 243, 245, 273, 274, 244, 256, 242, 236};
+short Merchant_base_x[NUM_MERCHANTS] =   {0,  7, 496, 494,  13, 246, 255, 255, 244, 208, 208, 250, 260, 261, 255, 250, 245, 254, 235, 265, 269, 257, 275, 264, 236, 212, 273, 273, 272, 260, 262, 240, 241, 237, 235, 251, 250, 240, 236};
+short Merchant_base_y[NUM_MERCHANTS] =   {0,  8,   4, 492, 491, 243, 243, 255, 254, 264, 265, 237, 252, 228, 251, 248, 249, 245, 255, 239, 240, 238, 246, 237, 262, 258, 247, 249, 250, 249, 226, 272, 268, 273, 274, 244, 256, 242, 236};
 
 // no effect on gameplay but can't change color if merch already exists
 //                                           8*teleport
@@ -242,7 +242,7 @@ static char get_obstaclemap_char(int x, int y)
         c = ((c == '0') || (c == '.') || (c == 'b')  || (c == 'B')) ? '0' : '1';
 
     // 2 unwalkable tiles (lined up horizontally) for coniferous trees
-    // 2 unwalkable tiles (lined up vertically) for broadleaf trees (note: in normal huntercoin only 1 tile is unwalkable)
+    // 2 unwalkable tiles (lined up vertically) for broadleaf trees (note: in huntercoin only 1 tile is unwalkable)
     if (x < RPG_MAP_WIDTH - 1)
     {
         char c2 = AsciiArtMap[y][x + 1];
@@ -744,7 +744,7 @@ static bool Calculate_AsciiArtMap()
         {
             for (int y = 0; y < RPG_MAP_HEIGHT+2; y++)
             {
-                // for regular Huntercoin map
+                // for regular map
 //                int x0 = Game::MAP_WIDTH - (y < 35 ? y : 35);
 //                if ((y > 250) && (y < 290)) x0 = Game::MAP_WIDTH;
                 // for random map
@@ -1025,11 +1025,6 @@ bool AppInit2(int argc, char* argv[])
 
     GetDataDir();    // Force creation of the default datadir directory, so we can create /testnet subdir in it
 
-    // alphatest -- testnet (never start as mainnet)
-//    if (VERSION_IS_BETA && !GetBoolArg("-testnet"))
-    if (!GetBoolArg("-testnet"))
-        mapArgs["-testnet"] = "";
-
     // Set testnet flag first to determine the default datadir correctly
     fTestNet = GetBoolArg("-testnet");
 
@@ -1042,18 +1037,18 @@ bool AppInit2(int argc, char* argv[])
     if (mapArgs.count("-?") || mapArgs.count("--help"))
     {
         string strUsage = string() +
-          _("huntercoin version") + " " + FormatFullVersion() + "\n\n" +
+          _("smartmonsters version") + " " + FormatFullVersion() + "\n\n" +
           _("Usage:") + "\t\t\t\t\t\t\t\t\t\t\n" +
-            "  huntercoin [options]                   \t  " + "\n" +
-            "  huntercoin [options] <command> [params]\t  " + _("Send command to -server or huntercoind") + "\n" +
-            "  huntercoin [options] help              \t\t  " + _("List commands") + "\n" +
-            "  huntercoin [options] help <command>    \t\t  " + _("Get help for a command") + "\n";
+            "  smartmonsters [options]                   \t  " + "\n" +
+            "  smartmonsters [options] <command> [params]\t  " + _("Send command to -server or smartmonstersd") + "\n" +
+            "  smartmonsters [options] help              \t\t  " + _("List commands") + "\n" +
+            "  smartmonsters [options] help <command>    \t\t  " + _("Get help for a command") + "\n";
             
         strUsage += "\n" + HelpMessage();
 
 #if defined(__WXMSW__) && defined(GUI)
         // Tabs make the columns line up in the message box
-        wxMessageBox(strUsage, "Huntercoin", wxOK);
+        wxMessageBox(strUsage, "SmartMonsters", wxOK);
 #else
         // Remove tabs
         strUsage.erase(std::remove(strUsage.begin(), strUsage.end(), '\t'), strUsage.end());
@@ -1073,7 +1068,7 @@ bool AppInit2(int argc, char* argv[])
         miningAlgo = ALGO_SCRYPT;
     else
     {
-        wxMessageBox("Incorrect -algo parameter specified, expected sha256d or scrypt", "Huntercoin");
+        wxMessageBox("Incorrect -algo parameter specified, expected sha256d or scrypt", "SmartMonsters");
         return false;
     }
 
@@ -1135,7 +1130,7 @@ bool AppInit2(int argc, char* argv[])
     if (GetBoolArg("-shrinkdebugfile", !fDebug))
         ShrinkDebugFile();
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    printf("huntercoin version %s\n", FormatFullVersion().c_str());
+    printf("smartmonsters version %s\n", FormatFullVersion().c_str());
     printf("Default data directory %s\n", GetDefaultDataDir().c_str());
 
     if (GetBoolArg("-loadblockindextest"))
@@ -1177,7 +1172,7 @@ bool AppInit2(int argc, char* argv[])
         loop
         {
             // Show the previous instance and exit
-            HWND hwndPrev = FindWindowA("wxWindowClassNR", "Huntercoin");
+            HWND hwndPrev = FindWindowA("wxWindowClassNR", "SmartMonsters");
             if (hwndPrev)
             {
                 if (IsIconic(hwndPrev))
@@ -1206,7 +1201,7 @@ bool AppInit2(int argc, char* argv[])
     static boost::interprocess::file_lock lock(strLockFile.c_str());
     if (!lock.try_lock())
     {
-        wxMessageBox(strprintf(_("Cannot obtain a lock on data directory %s.  Huntercoin client is probably already running."), GetDataDir().c_str()), "Huntercoin");
+        wxMessageBox(strprintf(_("Cannot obtain a lock on data directory %s.  SmartMonsters client is probably already running."), GetDataDir().c_str()), "SmartMonsters");
         return false;
     }
 
@@ -1216,7 +1211,7 @@ bool AppInit2(int argc, char* argv[])
     {
         if (!BindListenPort(strErrors))
         {
-            wxMessageBox(strErrors, "Huntercoin");
+            wxMessageBox(strErrors, "SmartMonsters");
             return false;
         }
     }
@@ -1227,7 +1222,7 @@ bool AppInit2(int argc, char* argv[])
     // Load data files
     //
     if (fDaemon)
-        fprintf(stdout, "huntercoin server starting\n");
+        fprintf(stdout, "smartmonsters server starting\n");
     strErrors = "";
     int64 nStart;
 
@@ -1329,7 +1324,7 @@ bool AppInit2(int argc, char* argv[])
     {
         if (!ParseMoney(mapArgs["-mininput"], nMinimumInputValue))
         {
-            wxMessageBox(_("Invalid amount for -mininput=<amount>"), "Huntercoin");
+            wxMessageBox(_("Invalid amount for -mininput=<amount>"), "SmartMonsters");
             return false;
         }
     }
@@ -1366,7 +1361,7 @@ bool AppInit2(int argc, char* argv[])
 
     if (!strErrors.empty())
     {
-        wxMessageBox(strErrors, "Huntercoin", wxOK | wxICON_ERROR);
+        wxMessageBox(strErrors, "SmartMonsters", wxOK | wxICON_ERROR);
         return false;
     }
 
@@ -1422,7 +1417,7 @@ bool AppInit2(int argc, char* argv[])
         addrProxy = CAddress(mapArgs["-proxy"]);
         if (!addrProxy.IsValid())
         {
-            wxMessageBox(_("Invalid -proxy address"), "Huntercoin");
+            wxMessageBox(_("Invalid -proxy address"), "SmartMonsters");
             return false;
         }
     }
@@ -1447,11 +1442,11 @@ bool AppInit2(int argc, char* argv[])
     {
         if (!ParseMoney(mapArgs["-paytxfee"], nTransactionFee))
         {
-            wxMessageBox(_("Invalid amount for -paytxfee=<amount>"), "Huntercoin");
+            wxMessageBox(_("Invalid amount for -paytxfee=<amount>"), "SmartMonsters");
             return false;
         }
         if (nTransactionFee > 0.25 * COIN)
-            wxMessageBox(_("Warning: -paytxfee is set very high.  This is the transaction fee you will pay if you send a transaction."), "Huntercoin", wxOK | wxICON_EXCLAMATION);
+            wxMessageBox(_("Warning: -paytxfee is set very high.  This is the transaction fee you will pay if you send a transaction."), "SmartMonsters", wxOK | wxICON_EXCLAMATION);
     }
 
     if (fHaveUPnP)
@@ -1479,7 +1474,7 @@ bool AppInit2(int argc, char* argv[])
     RandAddSeedPerfmon();
 
     if (!CreateThread(StartNode, NULL))
-        wxMessageBox("Error: CreateThread(StartNode) failed", "Huntercoin");
+        wxMessageBox("Error: CreateThread(StartNode) failed", "SmartMonsters");
 
     /* We're done initialising, from now on, the RPC daemon
        can work as usual.  */
@@ -1503,8 +1498,8 @@ std::string HelpMessage()
 {
     std::string strUsage = std::string(_("Options:\n")) +
         " -detachdb \t            " + _("Detach block and address databases. Increases shutdown time (default: 0)") + "\n" +
-        "  -conf=<file>     \t\t  " + _("Specify configuration file (default: huntercoin.conf)\n") +
-        "  -pid=<file>      \t\t  " + _("Specify pid file (default: huntercoind.pid)\n") +
+        "  -conf=<file>     \t\t  " + _("Specify configuration file (default: smartmonsters.conf)\n") +
+        "  -pid=<file>      \t\t  " + _("Specify pid file (default: smartmonstersd.pid)\n") +
         "  -walletpath=<file> \t  " + _("Specify the wallet filename (default: wallet.dat)") + "\n" +
         "  -gen             \t\t  " + _("Generate coins\n") +
         "  -gen=0           \t\t  " + _("Don't generate coins\n") +
@@ -1539,7 +1534,7 @@ std::string HelpMessage()
         "  -printtoconsole  \t\t  " + _("Send trace/debug info to console instead of debug.log file\n") +
         "  -rpcuser=<user>  \t  "   + _("Username for JSON-RPC connections\n") +
         "  -rpcpassword=<pw>\t  "   + _("Password for JSON-RPC connections\n") +
-        "  -rpcport=<port>  \t\t  " + _("Listen for JSON-RPC connections on <port> (default: 8399)\n") +
+        "  -rpcport=<port>  \t\t  " + _("Listen for JSON-RPC connections on <port> (default: 8397)\n") +
         "  -rpcallowip=<ip> \t\t  " + _("Allow JSON-RPC connections from specified IP address\n") +
         "  -rpcconnect=<ip> \t  "   + _("Send commands to node running on <ip> (default: 127.0.0.1)\n") +
         "  -keypool=<n>     \t  "   + _("Set key pool size to <n> (default: 100)\n") +

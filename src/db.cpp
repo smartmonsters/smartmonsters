@@ -1186,8 +1186,8 @@ CUtxoDB::InternalRescan (bool fVerify, OutPointSet* outPoints)
           "  # tx:        %d\n"
           "  # all txo:   %d\n"
           "  # all tx:    %d\n"
-          "  unspendable: %d (%.8f HUC)\n"
-          "  spendable:   %.8f HUC\n",
+          "  unspendable: %d (%.8f SMC)\n"
+          "  spendable:   %.8f SMC\n",
           txoCnt, txCnt, allTxoCnt, allTxCnt,
           unspendableCnt, static_cast<double> (unspendableAmount) / COIN,
           static_cast<double> (amount) / COIN);

@@ -62,8 +62,9 @@ extern void rescanfornames();
 extern Value sendtoaddress(const Array& params, bool fHelp);
 
 uint256 hashHuntercoinGenesisBlock[2] = {
-        uint256("00000000db7eb7a9e1a06cf995363dcdc4c28e8ae04827a961942657db9a1631"),    // Main net
-        uint256("000000492c361a01ce7558a3bfb198ea3ff2f86f8b0c2e00d26135c53f4acbf7")     // Test net
+    // alphatest -- genesis
+        uint256("00000000c7ac82c38f236a511e717259a3727d3be8c612daf4bff8740b4ce9b5"),    // Main net
+        uint256("00000063c87e68fcefc5907d4b4ce8441295b7e34a5e91a98cae872d8e8f1e92")     // Test net
     };
 
 class CHuntercoinHooks : public CHooks
@@ -229,12 +230,15 @@ string stringFromVch(const vector<unsigned char> &vch) {
 int64
 GetNameCoinAmount (unsigned nHeight, bool frontEnd)
 {
+  // alphatest -- custom locked coin amount
+  if (nHeight > 30000) return 20 * COIN;
+  else if (nHeight > 20000) return 30 * COIN;
+  else if (nHeight > 10000) return 50 * COIN;
+  else return 100 * COIN;
+
   /* For front-ends, increase the amount a little earlier.  */
   if (frontEnd)
     nHeight += 10;
-
-  // alphatest -- custom locked coin amount
-  return 20 * COIN;
 
   if (ForkInEffect (FORK_LESSHEARTS, nHeight))
     return 200 * COIN;
@@ -493,7 +497,7 @@ SendMoneyWithInputTx (const CScript& scriptPubKey, int64 nValue,
     if (fAskFee && !uiInterface.ThreadSafeAskFee(nFeeRequired))
         return "ABORTED";
 #else
-    if (fAskFee && !ThreadSafeAskFee(nFeeRequired, "Huntercoin", NULL))
+    if (fAskFee && !ThreadSafeAskFee(nFeeRequired, "SmartMonsters", NULL))
         return "ABORTED";
 #endif
 
@@ -588,7 +592,7 @@ Value sendtoname(const Array& params, bool fHelp)
 
     uint160 hash160;
     if (!AddressToHash160(strAddress, hash160))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No valid huntercoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No valid SmartMonsters address");
 
     // Amount
     int64 nAmount = AmountFromValue(params[1]);
@@ -1086,7 +1090,7 @@ Value name_firstupdate(const Array& params, bool fHelp)
         bool isValid = AddressToHash160 (strAddress, hash160);
         if (!isValid)
             throw JSONRPCError (RPC_INVALID_ADDRESS_OR_KEY,
-                                "Invalid huntercoin address");
+                                "Invalid SmartMonsters address");
         scriptPubKeyOrig.SetBitcoinAddress (strAddress);
     }
     else
@@ -1291,7 +1295,7 @@ Value name_update(const Array& params, bool fHelp)
             uint160 hash160;
             const bool isValid = AddressToHash160(strAddress, hash160);
             if (!isValid)
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid huntercoin address");
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid SmartMonsters address");
             scriptPubKeyOrig.SetBitcoinAddress(strAddress);
           }
         else if (fAddressReuse)
@@ -1431,7 +1435,7 @@ name_register (const Array& params, bool fHelp)
       bool isValid = AddressToHash160 (strAddress, hash160);
       if (!isValid)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY,
-                           "Invalid huntercoin address");
+                           "Invalid SmartMonsters address");
       scriptPubKeyOrig.SetBitcoinAddress (strAddress);
     }
   else
@@ -1491,7 +1495,7 @@ AddRawTxNameOperation (CTransaction& tx, const Object& obj)
   if (!IsValidBitcoinAddress (address))
     {
       std::ostringstream msg;
-      msg << "Invalid Huntercoin address: " << address;
+      msg << "Invalid SmartMonsters address: " << address;
       throw JSONRPCError (RPC_INVALID_ADDRESS_OR_KEY, msg.str ());
     }
 
@@ -1633,7 +1637,7 @@ Value game_getstate(const Array& params, bool fHelp)
         height = params[0].get_int64();
     }
     else if (IsInitialBlockDownload())
-            throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "huntercoin is downloading blocks...");
+            throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "smartmonsters is downloading blocks...");
 
     if (height < -1 || height > nBestHeight)
         throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid height specified");
@@ -1675,7 +1679,7 @@ Value game_waitforchange (const Array& params, bool fHelp)
 
   if (IsInitialBlockDownload ())
     throw JSONRPCError (RPC_CLIENT_IN_INITIAL_DOWNLOAD,
-                        "huntercoin is downloading blocks...");
+                        "smartmonsters is downloading blocks...");
 
   uint256 lastHash;
   if (params.size () > 0)
@@ -1718,7 +1722,7 @@ Value game_getplayerstate(const Array& params, bool fHelp)
         height = params[1].get_int64();
     }
     else if (IsInitialBlockDownload())
-            throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "huntercoin is downloading blocks...");
+            throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "smartmonsters is downloading blocks...");
 
 
     if (height < -1 || height > nBestHeight)
@@ -2158,7 +2162,7 @@ CHooks* InitHook()
     mapCallTable.insert(make_pair("deletetransaction", &deletetransaction));
     setCallAsync.insert("game_waitforchange");
     hashGenesisBlock = hashHuntercoinGenesisBlock[fTestNet ? 1 : 0];
-    printf("Setup huntercoin genesis block %s\n", hashGenesisBlock.GetHex().c_str());
+    printf("Setup SmartMonsters genesis block %s\n", hashGenesisBlock.GetHex().c_str());
     return new CHuntercoinHooks();
 }
 
@@ -2946,28 +2950,33 @@ bool CHuntercoinHooks::GenesisBlock(CBlock& block)
     txNew.vin.resize(1);
     txNew.vout.resize(1);
     txNew.vout[0].nValue = GetBlockValue(0, 0);
+
+    // alphatest -- genesis
     if (fTestNet)
     {
-        txNew.vin[0].scriptSig = CScript() << vchFromString("\nHuntercoin test net\n");
-        txNew.vout[0].scriptPubKey.SetBitcoinAddress("hRDGZuirWznh25mqZM5bKmeEAcw7dmDwUx");
-        txNew.vout[0].nValue = 100 * COIN;     // Preallocated coins for easy testing and giveaway
-        block.nTime    = 1391193136;
-        block.nNonce   = 1997599826u;
+        const char *timestamp =
+                "\n"
+                "SmartMonsters beta testnet timestamp\n"
+                "July 28, 2018 15:00 GMT\n"
+            ;
+        txNew.vin[0].scriptSig = CScript() << vchFromString(std::string(timestamp));
+        txNew.vout[0].scriptPubKey.SetBitcoinAddress("mjin7zDoyiR3WTbMSLLZADw9EaUQDzCtxt");
+        txNew.vout[0].nValue = 850000 * COIN;     // Preallocated coins for easy testing and giveaway
+        block.nTime    = 1532790938;
+        block.nNonce   = 537787730u;
     }
     else
     {
         const char *timestamp =
                 "\n"
-                "Huntercoin genesis timestamp\n"
-                "31/Jan/2014 20:10 GMT\n"
-                "Bitcoin block 283440: 0000000000000001795d3c369b0746c0b5d315a6739a7410ada886de5d71ca86\n"
-                "Litecoin block 506479: 77c49384e6e8dd322da0ebb32ca6c8f047d515d355e9f22b116430a888fffd38\n"
+                "SmartMonsters betatest genesis timestamp\n"
+                "July 30, 2018 13:15 GMT\n"
             ;
         txNew.vin[0].scriptSig = CScript() << vchFromString(std::string(timestamp));
-        txNew.vout[0].scriptPubKey.SetBitcoinAddress("HVguPy1tWgbu9cKy6YGYEJFJ6RD7z7F7MJ");
-        txNew.vout[0].nValue = 85000 * COIN;     // Preallocated coins for bounties and giveaway
-        block.nTime    = 1391199780;
-        block.nNonce   = 1906435634u;
+        txNew.vout[0].scriptPubKey.SetBitcoinAddress("1GFhTwV7DhLSKpoVFYSmknCa45uQmLAy85");
+        txNew.vout[0].nValue = 850000 * COIN;     // Preallocated coins for bounties and giveaway
+        block.nTime    = 1532961035;
+        block.nNonce   = 627401576u;
     }
     block.vtx.push_back(txNew);
     block.hashMerkleRoot = block.BuildMerkleTree(false);
@@ -2994,10 +3003,10 @@ bool CHuntercoinHooks::Lockin(int nHeight, uint256 hash)
     // alphatest -- checkpoints
     if (fTestNet)
     {
-        if (nHeight == 1505)
+        if (nHeight == 180)
         {
             uint256 hash0;
-            hash0.SetHex("000000002b6f796381fed8267259217cf9a66b7b6a23508cb9fdde1ec4f7407b");
+            hash0.SetHex("2081c25e2f3ac3dc61e70528c125f008e720952e995ee0f7af2a6076c2807657");
             if (hash != hash0)
                 return false;
         }
@@ -3017,8 +3026,7 @@ string CHuntercoinHooks::IrcPrefix()
 unsigned short GetDefaultPort()
 {
     // alphatest -- testnet
-//    return fTestNet ? 18398 : 8398;
-    return fTestNet ? 18396 : 8398;
+    return fTestNet ? 18396 : 8396;
 }
 /*
 To calculate the decimal address from a IP, perform the following calculation =
@@ -3027,9 +3035,9 @@ To calculate the decimal address from a IP, perform the following calculation =
 #define CONVERT_IP4(a, b, c, d) \
 (((a) << 24) + ((b) << 16) + ((c) << 8) + (d))
 
-// alphatest -- testnet
+// alphatest -- testnet (pnSeed -- leave empty, writing "addnode=..." in conf file works much better)
 //unsigned int pnSeed[] = {CONVERT_IP4(178,62,17,234), CONVERT_IP4(67,225,171,185), CONVERT_IP4(192,99,247,234) };
-unsigned int pnSeed[] = {CONVERT_IP4(69,90,132,108) };
+unsigned int pnSeed[] = {};
 const char *strDNSSeed[] = { NULL };
 
 string GetDefaultDataDirSuffix() {
@@ -3045,4 +3053,5 @@ string GetDefaultDataDirSuffix() {
 #endif
 }
 
-unsigned char GetAddressVersion() { return ((unsigned char)(fTestNet ? 100 : 40)); }
+// alphatest -- address prefix
+unsigned char GetAddressVersion() { return ((unsigned char)(fTestNet ? 111 : 0)); }  // was 100 : 40

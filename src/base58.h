@@ -235,12 +235,12 @@ public:
 };
 
 // CSecret32 is a 32- or 33-byte secret, from which the private key can be reconstructed. In Bitcoin it is used
-// everywhere (and called just CSecret); in the current Huntercoin implementation it is only used for
+// everywhere (and called just CSecret); in the current SmartMonsters implementation it is only used for
 // dumpprivkey / importprivkey, while the full private key is used in other cases.
 typedef std::vector<unsigned char, secure_allocator<unsigned char> > CSecret32;
 
 /** A base58-encoded secret key */
-// Note: Huntercoin implementation uses a hack: CSecret32 is used here, everywhere else
+// Note: SmartMonsters implementation uses a hack: CSecret32 is used here, everywhere else
 // a dummy CSecret is used, which contains the whole priv key (not just secret).
 // In Bitcoin, a proper CSecret is used everywhere.
 class CBitcoinSecret : public CBase58Data
@@ -249,7 +249,8 @@ public:
     void SetSecret(const CSecret32& vchSecret, bool fCompressed)
     {
         assert(vchSecret.size() == 32);
-        SetData(fTestNet ? 228 : 168, &vchSecret[0], vchSecret.size());
+        // alphatest -- address prefix
+        SetData(fTestNet ? 239 : 128, &vchSecret[0], vchSecret.size()); // was 228 : 168
         if (fCompressed)
             vchData.push_back(1);
     }
@@ -268,10 +269,11 @@ public:
         bool fExpectTestNet = false;
         switch(nVersion)
         {
-            case 168:
+            // alphatest -- address prefix
+            case 128:
                 break;
 
-            case 228:
+            case 239:
                 fExpectTestNet = true;
                 break;
 

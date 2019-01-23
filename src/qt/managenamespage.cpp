@@ -557,28 +557,33 @@ void ManageNamesPage::on_goButton_clicked()
         // TODO: this can be extracted as a method QueuedMove::ToJsonValue
         json_spirit::Object obj;
         if (item.second.destruct)
+        {
             obj.push_back(json_spirit::Pair("destruct", json_spirit::Value(true)));
+//printf("destruct pushed back\n");
+        }
 
         // alphatest -- can combine destruct and waypoints
-//        else
+//      else
+//      {
+        const std::vector<Game::Coord> *p = NULL;
+        if (mi != gameState.players.end())
         {
-            const std::vector<Game::Coord> *p = NULL;
-            if (mi != gameState.players.end())
-            {
-                std::map<int, Game::CharacterState>::const_iterator mi2 = mi->second.characters.find(item.first);
-                if (mi2 == mi->second.characters.end())
-                    continue;
-                const Game::CharacterState &ch = mi2->second;
-
-                // Caution: UpdateQueuedPath can modify the array queuedMoves that we are iterating over
-                p = UpdateQueuedPath(ch, queuedMoves, Game::CharacterID(strSelectedPlayer, item.first));
-            }
-
-            if (!p || p->empty())
-                p = &item.second.waypoints;
-
-            if (p->empty())
+            std::map<int, Game::CharacterState>::const_iterator mi2 = mi->second.characters.find(item.first);
+            if (mi2 == mi->second.characters.end())
                 continue;
+            const Game::CharacterState &ch = mi2->second;
+
+            // Caution: UpdateQueuedPath can modify the array queuedMoves that we are iterating over
+            p = UpdateQueuedPath(ch, queuedMoves, Game::CharacterID(strSelectedPlayer, item.first));
+        }
+
+        if (!p || p->empty())
+            p = &item.second.waypoints;
+
+//      if (p->empty())
+//          continue;
+        if (!p->empty())
+        {
 
             json_spirit::Array arr;
             if (p->size() == 1)
@@ -893,7 +898,6 @@ void ManageNamesPage::chrononAnimChanged(qreal t)
 void ManageNamesPage::chrononAnimFinished()
 {
     // alphatest -- display number of remaining blocks for current game round
-//    ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight));
     ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight) + tr(" ... new round starts in: %1").arg(RPG_BLOCKS_TILL_MONSTERAPOCALYPSE(gameState.nHeight)));
 }
 

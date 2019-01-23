@@ -346,7 +346,7 @@ QString WalletModel::nameUpdate(const QString &name, const std::string &data, co
             uint160 hash160;
             const bool isValid = AddressToHash160(strAddress, hash160);
             if (!isValid)
-                return tr("Invalid Huntercoin address");
+                return tr("Invalid SmartMonsters address");
             scriptPubKeyOrig.SetBitcoinAddress(strAddress);
           }
         else if (fAddressReuse)

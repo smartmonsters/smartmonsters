@@ -417,8 +417,13 @@ extern int AI_playermap[Game::MAP_HEIGHT][Game::MAP_WIDTH][4];
 #define ASCIIART_IS_CLIFFTOP(T) ((T=='?') || (T=='_'))
 #define ASCIIART_IS_COBBLESTONE(T) ((T=='o') || (T=='O') || (T=='q') || (T=='Q') || (T=='8'))
 
-#define RPG_HOTFIX_1 20010
-#define RPG_HOTFIX_2 30010
+//example to make a hardfork voteable:
+//#define RPG_HOTFIX_1 20010
+// if ((out_height >= RPG_HOTFIX_1) && (Cache_min_version >= 2020300))
+//  <new code>
+// else
+//  <old code>
+
 #define START_ZONE_FIRSTTILE 208
 #define START_ZONE_LASTTILE 292
 #define START_ZONE_SIZE 32

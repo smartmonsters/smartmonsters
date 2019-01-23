@@ -118,6 +118,13 @@ struct Move
     boost::optional<std::string> msg_request;
     boost::optional<std::string> msg_fee;
     boost::optional<std::string> msg_comment;
+    // alphatest -- reserved for tokens
+    // boost::optional<std::string> gw_name
+    // boost::optional<std::string> gw_command
+    // boost::optional<std::string> gw_addr_other
+    // alphatest -- reserved for high level player input
+    boost::optional<std::string> msg_area;
+    boost::optional<std::string> msg_merchant;
 
     /* For spawning moves.  */
     unsigned char color;
@@ -455,6 +462,26 @@ struct PlayerState
     int64 coins_vote;
     int64 coins_request;
     int64 coins_fee;
+    // alphatest -- reserved for tokens
+    std::string gw_name;
+    std::string gw_command;
+    int gw_command_block;
+    std::string gw_addr_other;
+    int64 gw_amount_coins;
+    int64 gw_amount_other;
+    int64 gw_amount_auto;
+    // alphatest -- reserved for high level player input
+    std::string msg_area;
+    int msg_area_block;
+    std::string msg_merchant;
+    int msg_merchant_block;
+    // reserve
+    std::string pl_reserve_s1;
+    std::string pl_reserve_s2;
+    int pl_reserve1;
+    int pl_reserve2;
+    int64 pl_reserve3;
+    int64 pl_reserve4;
 
     IMPLEMENT_SERIALIZE
     (
@@ -483,6 +510,26 @@ struct PlayerState
         READWRITE(coins_vote);
         READWRITE(coins_request);
         READWRITE(coins_fee);
+        // alphatest -- reserved for tokens
+        READWRITE(gw_name);
+        READWRITE(gw_command);
+        READWRITE(gw_command_block);
+        READWRITE(gw_addr_other);
+        READWRITE(gw_amount_coins);
+        READWRITE(gw_amount_other);
+        READWRITE(gw_amount_auto);
+        // alphatest -- reserved for high level player input
+        READWRITE(msg_area);
+        READWRITE(msg_area_block);
+        READWRITE(msg_merchant);
+        READWRITE(msg_merchant_block);
+        // reserve
+        READWRITE(pl_reserve_s1);
+        READWRITE(pl_reserve_s2);
+        READWRITE(pl_reserve1);
+        READWRITE(pl_reserve2);
+        READWRITE(pl_reserve3);
+        READWRITE(pl_reserve4);
 
         READWRITE(coinAmount);
     )
@@ -492,6 +539,12 @@ struct PlayerState
         next_character_index(0), remainingLife(-1), message_block(0)
       // alphatest -- bounties and voting
       , msg_vote_block(0), msg_request_block(0), coins_vote(0), coins_request(0), coins_fee(0)
+      // alphatest -- reserved for tokens
+      , gw_command_block(0), gw_amount_coins(0), gw_amount_other(0), gw_amount_auto(0)
+      // alphatest -- reserved for high level player input
+      , msg_area_block(0), msg_merchant_block(0)
+      // reserve
+      , pl_reserve1(0), pl_reserve2(0), pl_reserve3(0), pl_reserve4(0)
     {}
 
     void SpawnCharacter(RandomGenerator &rnd);
@@ -561,6 +614,12 @@ struct GameState
     int dcpoint_height2;
     uint256 dcpoint_hash1;
     uint256 dcpoint_hash2;
+    // alphatest -- reserved for tokens
+    int gw_count;
+    int gw_first_free;
+    // reserve
+    std::string gs_reserve_s1;
+    std::string gs_reserve_s2;
 
     IMPLEMENT_SERIALIZE
     (
@@ -606,6 +665,12 @@ struct GameState
       READWRITE(dcpoint_height2);
       READWRITE(dcpoint_hash1);
       READWRITE(dcpoint_hash2);
+      // alphatest -- reserved for tokens
+      READWRITE(gw_count);
+      READWRITE(gw_first_free);
+      // reserve
+      READWRITE(gs_reserve_s1);
+      READWRITE(gs_reserve_s2);
     )
 
     void UpdateVersion(int oldVersion);

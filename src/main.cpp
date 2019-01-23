@@ -36,11 +36,8 @@ map<COutPoint, CInPoint> mapNextTx;
 
 map<uint256, CBlockIndex*> mapBlockIndex;
 uint256 hashGenesisBlock;
-// alphatest -- lower start difficulty
-//CBigNum bnProofOfWorkLimit[NUM_ALGOS] = { CBigNum(~uint256(0) >> 32), CBigNum(~uint256(0) >> 20) };
-//CBigNum bnInitialHashTarget[NUM_ALGOS] = { CBigNum(~uint256(0) >> 32), CBigNum(~uint256(0) >> 20) };
-CBigNum bnProofOfWorkLimit[NUM_ALGOS] = { CBigNum(~uint256(0) >> 24), CBigNum(~uint256(0) >> 12) };
-CBigNum bnInitialHashTarget[NUM_ALGOS] = { CBigNum(~uint256(0) >> 24), CBigNum(~uint256(0) >> 12) };
+CBigNum bnProofOfWorkLimit[NUM_ALGOS] = { CBigNum(~uint256(0) >> 32), CBigNum(~uint256(0) >> 20) };
+CBigNum bnInitialHashTarget[NUM_ALGOS] = { CBigNum(~uint256(0) >> 32), CBigNum(~uint256(0) >> 20) };
 const int nInitialBlockThreshold = 0; // Regard blocks up until N-threshold as "initial download"
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
@@ -71,9 +68,9 @@ int fGenerateBitcoins = false;
 int64 nTransactionFee = 0;
 int64 nMinimumInputValue = 1;
 //int fLimitProcessors = false;
-// alphatest -- testnet
+// alphatest -- testnet (limit CPU load)
 int fLimitProcessors = true;
-int nLimitProcessorsEvenMore = true;
+int nLimitProcessorsEvenMore = false;
 
 int nLimitProcessors = 1;
 int fMinimizeToTray = true;
@@ -735,7 +732,8 @@ int CMerkleTx::GetBlocksToMaturity() const
     if (!IsCoinBase())
         return 0;
     if (hashBlock == hashGenesisBlock)   // Genesis block is immediately spendable
-        return INT_MAX; // alphatest -- Genesis block not immediately spendable, was: return 0;
+        return 0;
+//        return INT_MAX; // alphatest -- Genesis block not immediately spendable, was: return 0;
 
     return max(0, COINBASE_MATURITY_DISPLAY - GetDepthInMainChain());
 }
@@ -1245,9 +1243,9 @@ CTransaction::ConnectInputs (DatabaseSet& dbset, CTestPool& testPool,
                   return error ("ConnectInputs: height difference is negative");
 
                 // alphatest -- Genesis block not immediately spendable
-                if (txo.height == 0)
-                    return error ("ConnectInputs: tried to spend genesis coinbase at"
-                                  " depth %d", heightDiff);
+//                if (txo.height == 0)
+//                    return error ("ConnectInputs: tried to spend genesis coinbase at"
+//                                  " depth %d", heightDiff);
 
                 /* If prev is coinbase or a game tx, check that it's matured.
                    The premine coins are an exception.  */
@@ -1708,7 +1706,9 @@ int GetAuxPowStartBlock()
 int GetOurChainID(int algo)
 {
     // Chain IDs for merged mining: SHA-256d, scrypt
-    const static int chain_id[NUM_ALGOS] = { 0x0006, 0x0002 };
+    // alphatest -- merged mining chain_id must be a 16 bit integer
+//    const static int chain_id[NUM_ALGOS] = { 0x0006, 0x0002 };
+    const static int chain_id[NUM_ALGOS] = { 555, 555 };
     return chain_id[algo];
 }
 
@@ -2065,9 +2065,9 @@ CheckDiskSpace (uint64 nAdditionalBytes)
         strMiscWarning = strMessage;
         printf("*** %s\n", strMessage.c_str());
 #ifdef GUI
-        uiInterface.ThreadSafeMessageBox(strMessage, "Huntercoin", wxOK | wxICON_EXCLAMATION);
+        uiInterface.ThreadSafeMessageBox(strMessage, "SmartMonsters", wxOK | wxICON_EXCLAMATION);
 #else
-        ThreadSafeMessageBox(strMessage, "Huntercoin", wxOK | wxICON_EXCLAMATION);
+        ThreadSafeMessageBox(strMessage, "SmartMonsters", wxOK | wxICON_EXCLAMATION);
 #endif
 
         CreateThread(Shutdown, NULL);
@@ -2204,7 +2204,7 @@ bool LoadBlockIndex(bool fAllowNew)
 
         pchMessageStart[0] = 0xfa;
         pchMessageStart[1] = 0xbf;
-        pchMessageStart[2] = 0xb9; // alphatest -- testnet, different message start, was 0xb5
+        pchMessageStart[2] = 0xc5; // alphatest -- testnet, different message start, was 0xb5
         pchMessageStart[3] = 0xda;
     }
 
@@ -2524,7 +2524,7 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
 // The message start string is designed to be unlikely to occur in normal data.
 // The characters are rarely used upper ascii, not valid as UTF-8, and produce
 // a large 4-byte int at any alignment.
-char pchMessageStart[4] = { 0xf9, 0xbe, 0xb6, 0xd9 }; // alphatest -- testnet, different message start, was 0xf9, 0xbe, 0xb4, 0xd9
+char pchMessageStart[4] = { 0xf9, 0xbe, 0xc6, 0xd9 }; // alphatest -- testnet, different message start, was 0xf9, 0xbe, 0xb4, 0xd9
 
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
@@ -3936,6 +3936,10 @@ void static BitcoinMiner(CWallet *pwallet)
             // Update nTime every few seconds
             pblock->nTime = max(pindexPrev->GetMedianTimePast()+1, GetAdjustedTime());
             nBlockTime = ByteReverse(pblock->nTime);
+
+            // alphatest -- testnet (limit CPU load)
+            if (nLimitProcessorsEvenMore)
+                MilliSleep(5);
         }
     }
 }
@@ -4032,7 +4036,7 @@ void static ScryptMiner(CWallet *pwallet)
                 if ((pblock->nNonce & 0xFF) == 0)
                     break;
 
-                // alphatest -- testnet
+                // alphatest -- testnet (limit CPU load)
                 if (nLimitProcessorsEvenMore)
                     MilliSleep(5);
             }
@@ -4252,9 +4256,9 @@ CBlockIndex::GetTotalRewards () const
   /* Initialise with premine.  */
   int64 total;
   if (fTestNet)
-    total = 100 * COIN;
+    total = 850000 * COIN; // alphatest -- genesis
   else
-    total = 85000 * COIN;
+    total = 850000 * COIN;
 
   /* The genesis block had no ordinary mining reward, compensate for this.  */
   total -= GetBlockValue (0, 0);

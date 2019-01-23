@@ -23,11 +23,11 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(QWidget *parent) :
 
 #if (QT_VERSION >= 0x040700)
     /* Do not move this to the XML file, Qt before 4.7 will choke on it */
-    ui->addressIn_SM->setPlaceholderText(tr("Enter a Huntercoin address (e.g. HVguPy1tWgbu9cKy6YGYEJFJ6RD7z7F7MJ)"));
+    ui->addressIn_SM->setPlaceholderText(tr("Enter a SmartMonsters address (e.g. HVguPy1tWgbu9cKy6YGYEJFJ6RD7z7F7MJ)"));
     ui->signatureOut_SM->setPlaceholderText(tr("Click \"Sign Message\" to generate signature"));
 
-    ui->addressIn_VM->setPlaceholderText(tr("Enter a Huntercoin address (e.g. HVguPy1tWgbu9cKy6YGYEJFJ6RD7z7F7MJ)"));
-    ui->signatureIn_VM->setPlaceholderText(tr("Enter Huntercoin signature"));
+    ui->addressIn_VM->setPlaceholderText(tr("Enter a SmartMonsters address (e.g. HVguPy1tWgbu9cKy6YGYEJFJ6RD7z7F7MJ)"));
+    ui->signatureIn_VM->setPlaceholderText(tr("Enter SmartMonsters signature"));
 #endif
 
     GUIUtil::setupAddressWidget(ui->addressIn_SM, this);

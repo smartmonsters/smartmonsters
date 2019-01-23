@@ -94,7 +94,7 @@ extern int fGenerateBitcoins, fGenerationAlgo;
 extern int64 nTransactionFee;
 extern int64 nMinimumInputValue;
 extern int fLimitProcessors;
-// alphatest -- testnet
+// alphatest -- testnet (limit CPU load)
 extern int nLimitProcessorsEvenMore;
 
 extern int nLimitProcessors;

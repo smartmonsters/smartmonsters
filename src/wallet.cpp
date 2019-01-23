@@ -71,7 +71,7 @@ void CWallet::WalletUpdateSpent(const CTransaction &tx)
                 CWalletTx& wtx = (*mi).second;
                 if (!wtx.IsSpent(txin.prevout.n) && IsMine(wtx.vout[txin.prevout.n]))
                 {
-                    printf("WalletUpdateSpent found spent coin %s HUC %s\n", FormatMoney(wtx.GetCredit()).c_str(), wtx.GetHash().ToString().c_str());
+                    printf("WalletUpdateSpent found spent coin %s SMC %s\n", FormatMoney(wtx.GetCredit()).c_str(), wtx.GetHash().ToString().c_str());
                     wtx.MarkSpent(txin.prevout.n);
                     wtx.WriteToDisk();
                     //vWalletUpdated.push_back(txin.prevout.hash);
@@ -592,7 +592,7 @@ void CWallet::ReacceptWalletTransactions()
                 }
                 if (fUpdated)
                 {
-                    printf("ReacceptWalletTransactions found spent coin %s HUC %s\n", FormatMoney(wtx.GetCredit()).c_str(), wtx.GetHash().ToString().c_str());
+                    printf("ReacceptWalletTransactions found spent coin %s SMC %s\n", FormatMoney(wtx.GetCredit()).c_str(), wtx.GetHash().ToString().c_str());
                     wtx.MarkDirty();
                     wtx.WriteToDisk();
                 }
@@ -1211,7 +1211,7 @@ CWallet::SendMoneyPrepare (const vecSendT& vecSend, CWalletTx& wtxNew,
     if (fAskFee && !uiInterface.ThreadSafeAskFee(nFeeRequired))
         return "ABORTED";
 #else
-    if (fAskFee && !ThreadSafeAskFee(nFeeRequired, "Huntercoin", NULL))
+    if (fAskFee && !ThreadSafeAskFee(nFeeRequired, "SmartMonsters", NULL))
         return "ABORTED";
 #endif
 
@@ -1227,7 +1227,7 @@ string CWallet::SendMoneyToBitcoinAddress(string strAddress, int64 nValue, CWall
     // Parse bitcoin address
     CScript scriptPubKey;
     if (!scriptPubKey.SetBitcoinAddress(strAddress))
-        return _("Invalid huntercoin address");
+        return _("Invalid address");
 
     return SendMoney(scriptPubKey, nValue, wtxNew, fAskFee);
 }
