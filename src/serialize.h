@@ -580,7 +580,7 @@ void Unserialize(Stream& is, std::pair<K, T>& item, int nType, int nVersion)
 }
 
 
-// alphatest -- ubuntu 18.04 build (drop dependency on tuple in serialization)
+// alphatest -- ubuntu 18.04 build (drop dependency on boost::tuple in serialization)
 /*
 //
 // 3 tuple

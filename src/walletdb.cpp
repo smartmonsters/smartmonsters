@@ -50,7 +50,7 @@ bool CWalletDB::WriteAccount(const string& strAccount, const CAccount& account)
 
 bool CWalletDB::WriteAccountingEntry(const CAccountingEntry& acentry)
 {
-    // alphatest -- ubuntu 18.04 build (drop dependency on tuple in serialization)
+    // alphatest -- ubuntu 18.04 build (drop dependency on boost::tuple in serialization)
 //    return Write(make_tuple(string("acentry"), acentry.strAccount, ++nAccountingEntryNumber), acentry);
     return Write(std::make_pair(std::string("acentry"), std::make_pair(acentry.strAccount, ++nAccountingEntryNumber)), acentry);
 }
@@ -82,7 +82,7 @@ void CWalletDB::ListAccountCreditDebit(const string& strAccount, list<CAccountin
         // Read next record
         CDataStream ssKey;
         if (fFlags == DB_SET_RANGE)
-            // alphatest -- ubuntu 18.04 build (drop dependency on tuple in serialization)
+            // alphatest -- ubuntu 18.04 build (drop dependency on boost::tuple in serialization)
 //            ssKey << make_tuple(string("acentry"), (fAllAccounts? string("") : strAccount), uint64(0));
             ssKey << std::make_pair(std::string("acentry"), std::make_pair((fAllAccounts ? string("") : strAccount), uint64_t(0)));
         CDataStream ssValue;

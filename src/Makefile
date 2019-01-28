@@ -31,7 +31,7 @@ LIBS= \
    -l ssl \
    -l crypto
 
-huntercoind: USE_UPNP:=0
+smartmonsterd: USE_UPNP:=0
 	ifdef USE_UPNP
 		LIBS += -l miniupnpc
 		DEFS += -DUSE_UPNP=$(USE_UPNP) -DMINIUPNP_STATICLIB -DSTATICLIB
@@ -89,7 +89,7 @@ OBJS_SSE2= obj/scrypt-sse2.o
 OBJS += $(OBJS_SSE2)
 endif
 
-all: huntercoind
+all: smartmonsterd
 
 obj/%.o: %.cpp $(HEADERS)
 	$(CXX) -c $(CXXFLAGS) -DGUI -o $@ $<
@@ -114,11 +114,11 @@ obj/gametx.o: gametx.h gamestate.h
 
 obj/gamemovecreator.o: gamemovecreator.h gamestate.h gamemap.h
 
-huntercoind: $(OBJS)
+smartmonsterd: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS)
 
 clean:
-	-rm -f huntercoin huntercoind
+	-rm -f smartmonster smartmonsterd
 	-rm -f obj/*.o
 	-rm -f cryptopp/obj/*.o
 	-rm -f headers.h.gch

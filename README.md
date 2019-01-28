@@ -33,3 +33,12 @@ To build the daemon (without UPNP support)
     cd src
     make -f Makefile USE_UPNP=
 
+To start the daemon (example)
+
+    cd ..
+    mv ./src/smartmonsterd ./smartmonsterd
+    strip smartmonsterd
+    ./smartmonsterd -daemon -server -port=18396
+    ./smartmonsterd help
+    ./smartmonsterd getinfo
+
