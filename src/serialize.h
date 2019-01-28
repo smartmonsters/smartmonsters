@@ -580,7 +580,8 @@ void Unserialize(Stream& is, std::pair<K, T>& item, int nType, int nVersion)
 }
 
 
-
+// alphatest -- ubuntu 18.04 build (drop dependency on tuple in serialization)
+/*
 //
 // 3 tuple
 //
@@ -601,6 +602,7 @@ void Serialize(Stream& os, const boost::tuple<T0, T1, T2>& item, int nType, int 
     Serialize(os, boost::get<1>(item), nType, nVersion);
     Serialize(os, boost::get<2>(item), nType, nVersion);
 }
+*/
 
 template<typename Stream, typename T0, typename T1, typename T2>
 void Unserialize(Stream& is, boost::tuple<T0, T1, T2>& item, int nType, int nVersion)

@@ -2524,7 +2524,10 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
 // The message start string is designed to be unlikely to occur in normal data.
 // The characters are rarely used upper ascii, not valid as UTF-8, and produce
 // a large 4-byte int at any alignment.
-char pchMessageStart[4] = { 0xf9, 0xbe, 0xc6, 0xd9 }; // alphatest -- testnet, different message start, was 0xf9, 0xbe, 0xb4, 0xd9
+
+// alphatest -- testnet, different message start, was 0xf9, 0xbe, 0xb4, 0xd9
+// alphatest -- ubuntu 18.04 build (narrowing conversion from int to char)
+char pchMessageStart[4] = { (char)0xf9, (char)0xbe, (char)0xc6, (char)0xd9 };
 
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)

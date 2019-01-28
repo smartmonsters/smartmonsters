@@ -52,7 +52,7 @@ static CNode* pnodeSync = NULL;
 CAddress addrLocalHost("0.0.0.0", 0, false, nLocalServices);
 CNode* pnodeLocalHost = NULL;
 uint64 nLocalHostNonce = 0;
-array<int, 10> vnThreadsRunning;
+boost::array<int, 10> vnThreadsRunning; // alphatest -- ubuntu 18.04 build (just "array" is ambiguous)
 SOCKET hListenSocket = INVALID_SOCKET;
 
 vector<CNode*> vNodes;

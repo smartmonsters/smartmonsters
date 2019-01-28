@@ -1,13 +1,11 @@
-Smart Monsters alpha test
-=========================
+Smart Monsters beta test
+========================
 
-Smart Monsters on the blockchain: crypto currency and decentralized game
+Smart Monsters on the blockchain: crypto currency and decentralized game with strategy and RPG elements.
 
-Smart Monsters is a complete overhaul of Huntercoin as a simulation game with strategy and RPG elements.
+This beta test always starts as testnet, using 'smartmonsters/testnet-beta' data folder.
 
-This alpha test always starts as testnet, using 'smartmonsters/testnet-alpha2' data folder.
-
-Newest Windows build:
+Newest Windows client:
 
 https://smartmonsters.github.io/Manual4.html
 
@@ -20,6 +18,10 @@ To build on a new Ubuntu 16.04 or Linux Mint 18
 In case of 'cannot find -lgthread-2.0'
 
     sudo apt-get install libgtk2.0-dev
+
+Additionally, to build on Ubuntu 18.04 or Linux Mint 19
+
+    sudo apt-get install libssl1.0.0 libssl1.0-dev
 
 if Qt Creator is installed after these dependencies, open smartmonsters-qt.pro, and click Build | Build project smartmonsters-qt, otherwise
 
