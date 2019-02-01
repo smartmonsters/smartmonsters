@@ -70,7 +70,7 @@ int64 nMinimumInputValue = 1;
 //int fLimitProcessors = false;
 // alphatest -- testnet (limit CPU load)
 int fLimitProcessors = true;
-int nLimitProcessorsEvenMore = false;
+int nLimitProcessorsEvenMore = 0;
 
 int nLimitProcessors = 1;
 int fMinimizeToTray = true;
@@ -3942,7 +3942,7 @@ void static BitcoinMiner(CWallet *pwallet)
 
             // alphatest -- testnet (limit CPU load)
             if (nLimitProcessorsEvenMore)
-                MilliSleep(5);
+                MilliSleep(nLimitProcessorsEvenMore);
         }
     }
 }
@@ -4041,7 +4041,7 @@ void static ScryptMiner(CWallet *pwallet)
 
                 // alphatest -- testnet (limit CPU load)
                 if (nLimitProcessorsEvenMore)
-                    MilliSleep(5);
+                    MilliSleep(nLimitProcessorsEvenMore);
             }
 
             // Meter hashes/sec

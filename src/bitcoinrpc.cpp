@@ -672,21 +672,24 @@ Value setgenerate(const Array& params, bool fHelp)
         throw runtime_error(
             "setgenerate <generate> [genproclimit]\n"
             "<generate> is true or false to turn generation on or off.\n"
-            "Generation is limited to [genproclimit] processors, -1 is unlimited.");
+            "Generation is limited to [genproclimit] processors, -1 is unlimited.\n"
+            "-2 is slower than 1, -3 slower than -2, -4 even slower and so on.");
 
     bool fGenerate = true;
     if (params.size() > 0)
         fGenerate = params[0].get_bool();
+
+    nLimitProcessorsEvenMore = 0;
 
     if (params.size() > 1)
     {
         int nGenProcLimit = params[1].get_int();
 
         // alphatest -- testnet (limit CPU load)
-        if (nGenProcLimit == -2)
+        if (nGenProcLimit <= -2)
         {
+            nLimitProcessorsEvenMore = -nGenProcLimit;
             nGenProcLimit = 1;
-            nLimitProcessorsEvenMore = true;
         }
 
         fLimitProcessors = (nGenProcLimit != -1);
