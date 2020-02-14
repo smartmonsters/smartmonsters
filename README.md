@@ -23,7 +23,7 @@ Additionally, to build on Ubuntu 18.04 or Linux Mint 19
 
     sudo apt-get install libssl1.0.0 libssl1.0-dev
 
-if Qt Creator is installed after these dependencies, open smartmonsters-qt.pro, and click Build | Build project smartmonsters-qt, otherwise
+To build the Qt Client
 
     qmake
     make
@@ -38,7 +38,7 @@ To start the daemon (example)
     cd ..
     mv ./src/smartmonsterd ./smartmonsterd
     strip smartmonsterd
-    ./smartmonsterd -daemon -server -port=18396
+    ./smartmonsterd -daemon -server
     ./smartmonsterd help
     ./smartmonsterd getinfo
 

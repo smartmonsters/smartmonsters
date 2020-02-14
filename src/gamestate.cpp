@@ -4976,27 +4976,48 @@ GameState::PrintPlayerStats()
                     int nqx = POI_pos_xa[tmp_queued_point];
                     int nqy = POI_pos_ya[tmp_queued_point];
 
+                    int tmp_marked_point = ch.ai_marked_harvest_poi;
+                    if (tmp_marked_point >= AI_NUM_POI) continue;
+                    int nmx = POI_pos_xa[tmp_marked_point];
+                    int nmy = POI_pos_ya[tmp_marked_point];
+
+                    int tmp_duty_point = ch.ai_duty_harvest_poi;
+                    if (tmp_duty_point >= AI_NUM_POI) continue;
+                    int ndx = POI_pos_xa[tmp_duty_point];
+                    int ndy = POI_pos_ya[tmp_duty_point];
+
                     int time_since_order = (nHeight - ch.ai_order_time);
                     if (time_since_order > time_for_100_percent)
                         time_since_order = time_for_100_percent; // chance of order being executed
 
                     if (tmp_fav_point >= POIINDEX_NORMAL_FIRST)
                     {
+                        fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d  %5d  %5d     %6s   %6s   %6s   %6s   %6s   %6s   area#%-3d  %3d,%-3d    %4d", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str(),
+                                tmp_fav_point, nfx, nfy, Distance_To_POI[tmp_fav_point][ch.coord.y][ch.coord.x]);
+
                         if (tmp_queued_point > 0)
-                            fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d  %5d  %5d     %6s   %6s   %6s   %6s   %6s   %6s   area#%-3d  %3d,%-3d    %4d        area#%-3d  %3d,%-3d    %4d    %d/%d\n", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str(),
-                                    tmp_fav_point, nfx, nfy, Distance_To_POI[tmp_fav_point][ch.coord.y][ch.coord.x],
-                                    tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][nfy][nfx], time_since_order, time_for_100_percent);
-                        else
-                            fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d  %5d  %5d     %6s   %6s   %6s   %6s   %6s   %6s   area#%-3d  %3d,%-3d    %4d\n", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str(),
-                                    tmp_fav_point, nfx, nfy, Distance_To_POI[tmp_fav_point][ch.coord.y][ch.coord.x]);
+                        {
+                            fprintf(fp, "        area#%-3d  %3d,%-3d    %4d    %d/%d", tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][nfy][nfx], time_since_order, time_for_100_percent);
+                            if (tmp_marked_point > 0)
+                                fprintf(fp, "  MARKED area#%-3d  %3d,%-3d", tmp_marked_point, nmx, nmy);
+                            if (tmp_duty_point > 0)
+                                fprintf(fp, "  DUTY area#%-3d  %3d,%-3d", tmp_marked_point, ndx, ndy);
+                        }
+                        fprintf(fp, "\n");
                     }
                     else
                     {
+                        fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d  %5d  %5d     %6s   %6s   %6s   %6s   %6s   %6s", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str());
+
                         if (tmp_queued_point > 0)
-                            fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d  %5d  %5d     %6s   %6s   %6s   %6s   %6s   %6s                                    area#%-3d  %3d,%-3d    %4d    %d/%d\n", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str(),
-                                    tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][ch.coord.y][ch.coord.x], time_since_order, time_for_100_percent);
-                        else
-                            fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d  %5d  %5d     %6s   %6s   %6s   %6s   %6s   %6s\n", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str());
+                        {
+                            fprintf(fp, "                                    area#%-3d  %3d,%-3d    %4d    %d/%d", tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][ch.coord.y][ch.coord.x], time_since_order, time_for_100_percent);
+                            if (tmp_marked_point > 0)
+                                fprintf(fp, "  MARKED area#%-3d  %3d,%-3d", tmp_marked_point, nmx, nmy);
+                            if (tmp_duty_point > 0)
+                                fprintf(fp, "  DUTY area#%-3d  %3d,%-3d", tmp_marked_point, ndx, ndy);
+                        }
+                        fprintf(fp, "\n");
                     }
                 }
             }
