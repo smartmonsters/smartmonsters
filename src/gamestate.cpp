@@ -1454,6 +1454,7 @@ void CharacterState::MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int c
           if (NPCROLE_IS_MONSTER(ai_npc_role))
           {
               StopMoving();
+              ai_chat = AI_LEARNRESULT_FAIL_MONSTER;
           }
           // make sure merchants never go banking
           else if (NPCROLE_IS_MERCHANT(ai_npc_role))
@@ -1490,9 +1491,38 @@ void CharacterState::MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int c
 
                 if (k_nearby >= 0)
                 {
-                    ai_queued_harvest_poi = k_nearby;
-                    ai_order_time = out_height;
+                    if (k_nearby != ai_fav_harvest_poi)
+                    {
+                        if (k_nearby != ai_queued_harvest_poi)
+                            ai_chat = AI_LEARNRESULT_OK;
+                        else
+                            ai_chat = AI_LEARNRESULT_UNCHANGED;
+
+                        ai_queued_harvest_poi = k_nearby;
+                        ai_order_time = out_height;
+                    }
+                    else
+                    {
+                        // only give warning if player input is clearly nonsensical
+                        if (!AI_IS_SAFEZONE(coord.x, coord.y))
+                            ai_chat = AI_LEARNRESULT_FAIL_ALREADY_HERE;
+
+                        // acknowledge all movement orders (with voteable hardfork)
+                        if (Cache_min_version < 2020600)
+                        {
+                            ai_queued_harvest_poi = k_nearby;
+                            ai_order_time = out_height;
+                        }
+                    }
                 }
+                else if (!AI_IS_SAFEZONE(coord.x, coord.y))
+                {
+                    ai_chat = AI_LEARNRESULT_FAIL_NO_POLE;
+                }
+            }
+            else if (!AI_IS_SAFEZONE(coord.x, coord.y))
+            {
+                ai_chat = AI_LEARNRESULT_FAIL_IRREVOCABLE;
             }
 
             ai_state |= AI_STATE_MANUAL_MODE; // player in control
@@ -1511,11 +1541,14 @@ void CharacterState::MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int c
           if (!(AI_ADJACENT_IS_SAFEZONE(coord.x, coord.y)))
           {
               StopMoving();
+              if (AI_IS_SAFEZONE(coord.x, coord.y))
+                  ai_chat = AI_LEARNRESULT_PERIMETER;
           }
           // manual player movement not allowed if already going to battlefield (part 2)
           else if ((ai_fav_harvest_poi < AI_NUM_POI) && ((POI_type[ai_fav_harvest_poi] == POITYPE_HARVEST1) || (POI_type[ai_fav_harvest_poi] == POITYPE_HARVEST2)))
           {
               StopMoving();
+              ai_chat = AI_LEARNRESULT_FAIL_BLOODLUST;
           }
           else if ((RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(out_height) == 0) && (ai_queued_harvest_poi < AI_NUM_POI) && ((POI_type[ai_queued_harvest_poi] == POITYPE_HARVEST1) || (POI_type[ai_queued_harvest_poi] == POITYPE_HARVEST2)))
           {

@@ -27,13 +27,13 @@ struct GameGraphicsObjects
 {
     // Player sprites for each color and 10 directions (with 0 and 5 being null, the rest are as on numpad)
     // alphatest -- more player sprites
-    QPixmap player_sprite[Game::NUM_TEAM_COLORS+39][10];
+    QPixmap player_sprite[Game::NUM_TEAM_COLORS+40][10];
 
     QPixmap coin_sprite, heart_sprite, crown_sprite;
     QPixmap tiles[NUM_TILE_IDS];
 
     // alphatest -- more player sprites
-    QBrush player_text_brush[Game::NUM_TEAM_COLORS+39];
+    QBrush player_text_brush[Game::NUM_TEAM_COLORS+40];
 
     QPen magenta_pen, gray_pen;
 
@@ -86,10 +86,11 @@ struct GameGraphicsObjects
         player_text_brush[40] = QBrush(QColor(0, 170, 255));
         player_text_brush[41] = QBrush(QColor(235, 235, 235)); // if killed by spell effect
         player_text_brush[42] = QBrush(QColor(235, 235, 235)); // color flags
+        player_text_brush[43] = QBrush(QColor(255, 170, 255));
 
 
         // alphatest -- more player sprites
-        for (int i = 0; i < Game::NUM_TEAM_COLORS+39; i++)
+        for (int i = 0; i < Game::NUM_TEAM_COLORS+40; i++)
             for (int j = 1; j < 10; j++)
             {
                 if (j != 5)
@@ -1871,6 +1872,45 @@ void GameMapView::updateGameMap(const GameState &gameState)
             {
                 entry.name += QString::fromStdString(" 'Perish!'");
             }
+            // acknowledge all movement orders (with voteable hardfork)
+            else if (characterState.ai_chat == AI_LEARNRESULT_PERIMETER)
+            {
+                entry.name += QString::fromStdString(" 'Standing still on border strip.");
+            }
+            else if (characterState.ai_chat == AI_LEARNRESULT_UNCHANGED)
+            {
+                entry.name += QString::fromStdString(" 'Same queued move order.");
+            }
+            else if (characterState.ai_chat == AI_LEARNRESULT_OK)
+            {
+                int b = gameState.nHeight % RPG_INTERVAL_MONSTERAPOCALYPSE;
+                int b_start = gameState.nHeight - b;
+                int b_start_next = b_start + RPG_INTERVAL_MONSTERAPOCALYPSE;
+
+                entry.name += QString::fromStdString(" 'MOVEMENT ORDER FOR CHRONON ");
+                entry.name += QString::number(b_start_next);
+                entry.name += QString::fromStdString(" ACKNOWLEDGED!'");
+            }
+            else if (characterState.ai_chat == AI_LEARNRESULT_FAIL_MONSTER)
+            {
+                entry.name += QString::fromStdString(" 'THOU NO LONGER POSSESSES ME!!!'");
+            }
+            else if (characterState.ai_chat == AI_LEARNRESULT_FAIL_NO_POLE)
+            {
+                entry.name += QString::fromStdString(" 'I WON'T GO THERE! NO COINS! WASTELAND!'");
+            }
+            else if (characterState.ai_chat == AI_LEARNRESULT_FAIL_ALREADY_HERE)
+            {
+                entry.name += QString::fromStdString(" 'FOOL! YOU WASTED THE DAY! I'M ALREADY HERE!'");
+            }
+            else if (characterState.ai_chat == AI_LEARNRESULT_FAIL_BLOODLUST)
+            {
+                entry.name += QString::fromStdString(" 'I MUST GO NOW. DON'T TRY TO STOP ME!'");
+            }
+            else if (characterState.ai_chat == AI_LEARNRESULT_FAIL_IRREVOCABLE)
+            {
+                entry.name += QString::fromStdString(" 'I HAVE MY ORDERS ALREADY!'");
+            }
 
 
             int tmp_npc_role = characterState.ai_npc_role;
@@ -2367,6 +2407,8 @@ void GameMapView::updateGameMap(const GameState &gameState)
             // add item part 16 -- new death sprite (41_1.png to 41_9.png in sprites folder, and corresponding lines in gamemap.qrc)
             else if (characterState.ai_state2 & AI_STATE2_DEATH_LIGHTNING)
                 entry.color = 41;
+            else if (characterState.ai_chat > AI_LEARNRESULT_OK)
+                entry.color = 43;
             else if (tmp_npc_role == 100)
                 entry.color = characterState.loot.nAmount < SATS_FOR_CLVL2 ? 10 : 11;
             else if (tmp_npc_role == 101)

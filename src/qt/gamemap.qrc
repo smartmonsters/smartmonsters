@@ -862,6 +862,14 @@
         <file alias="42_7">res/gamemap/sprites/42_7.png</file>
         <file alias="42_8">res/gamemap/sprites/42_8.png</file>
         <file alias="42_9">res/gamemap/sprites/42_9.png</file>
+        <file alias="43_1">res/gamemap/sprites/43_1.png</file>
+        <file alias="43_2">res/gamemap/sprites/43_1.png</file>
+        <file alias="43_3">res/gamemap/sprites/43_1.png</file>
+        <file alias="43_4">res/gamemap/sprites/43_1.png</file>
+        <file alias="43_6">res/gamemap/sprites/43_1.png</file>
+        <file alias="43_7">res/gamemap/sprites/43_1.png</file>
+        <file alias="43_8">res/gamemap/sprites/43_1.png</file>
+        <file alias="43_9">res/gamemap/sprites/43_1.png</file>
         <file alias="coin">res/gamemap/sprites/coin.png</file>
         <file alias="heart">res/gamemap/sprites/heart.png</file>
         <file alias="crown">res/gamemap/sprites/crown.png</file>
