@@ -16,6 +16,9 @@
 #include "gamemapview.h"
 #include "gamechatview.h"
 
+// alphatest -- player move input
+#include "gamemap.h"
+
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QTimeLine>
@@ -688,6 +691,79 @@ void ManageNamesPage::onTileClicked(int x, int y, bool ctrlPressed)
         Game::WaypointVector &cwp = queuedMoves[chid.player][chid.index].waypoints;
         bool appendWP = (ctrlPressed && !cwp.empty());
         Game::Coord start = (appendWP) ? cwp.back() : mi2->second.coord;
+
+        // alphatest -- player move input
+        // IsInsideMap(x, y) was already checked when this function is called
+        if ((!ctrlPressed) &&
+            (Distance_To_POI[POIINDEX_CENTER][y][x] > 0) ) // -1 if not walkable, 0 if not reachable
+        {
+          // If path start point is outside of a safezone, snap end point to a nearby flagpole with coins.
+          // If entire path is inside of a safezone, do nothing.
+          // If the path starts inside of a safezone but leaves the safezone, snap end point to any nearby flagpole.
+          bool snap_to_flagpole = false;
+          if (AI_IS_SAFEZONE(start.x, start.y))
+          {
+              if ( (!(AI_IS_SAFEZONE(x, y))) ||
+                   (abs(x - start.x) > 100) || (abs(y - start.y) > 100) ) // in case the path goes from one safezone to another safezone
+              {
+                  snap_to_flagpole = true;
+              }
+          }
+          else
+          {
+              snap_to_flagpole = true;
+          }
+
+          if (snap_to_flagpole)
+          {
+            int k_favorite = mi2->second.ai_fav_harvest_poi;
+            int k_nearest = -1;
+            int d_nearest = AI_DIST_INFINITE;
+            bool is_near_poi = false;
+
+            for (int k = POIINDEX_CENTER; k < AI_NUM_POI; k++)
+            {
+                // if the new path would not change movement order for the character's AI
+                if (k == k_favorite) continue;
+
+                // try to be smart
+                if ((abs(x - start.x)) > (abs(y - start.y)))
+                {
+                    if ((x - start.x < 0) && (POI_pos_xa[k] - start.x > 0)) continue;
+                    if ((x - start.x > 0) && (POI_pos_xa[k] - start.x < 0)) continue;
+                }
+                else
+                {
+                    if ((y - start.y < 0) && (POI_pos_ya[k] - start.y > 0)) continue;
+                    if ((y - start.y > 0) && (POI_pos_ya[k] - start.y < 0)) continue;
+                }
+
+                int d = Distance_To_POI[k][y][x];
+                // -1 if not walkable, 0 if not reachable
+                // there are tiles in this map that are walkable but still unreachable
+
+                // Do nothing if path end point is already close enough to a flagpole.
+                if (d <= 12)
+                {
+                    is_near_poi = true;
+                    break;
+                }
+
+                if (d < d_nearest)
+                {
+                    d_nearest = d;
+                    k_nearest = k;
+                }
+            }
+            // snap target coors to nearest flagpole
+            if ((!is_near_poi) && (k_nearest > -1))
+            {
+                target.x = x = POI_pos_xa[k_nearest];
+                target.y = y = POI_pos_ya[k_nearest];
+            }
+          }
+        }
+
         Game::WaypointVector wp = FindPath(start, target);
         
         if (wp.empty()) 

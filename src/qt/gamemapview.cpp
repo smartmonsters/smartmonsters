@@ -38,8 +38,8 @@ struct GameGraphicsObjects
     QPen magenta_pen, gray_pen;
 
     GameGraphicsObjects()
-        : magenta_pen(Qt::magenta, 2.0),
-        gray_pen(QColor(170, 170, 170), 2.0)
+        : magenta_pen(Qt::magenta, 4.0), // 2.0
+        gray_pen(QColor(170, 170, 170), 8.0) // 2.0
     {
         player_text_brush[0] = QBrush(QColor(255, 255, 100));
         player_text_brush[1] = QBrush(QColor(255, 80, 80));
