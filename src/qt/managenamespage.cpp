@@ -693,10 +693,12 @@ void ManageNamesPage::onTileClicked(int x, int y, bool ctrlPressed)
         Game::Coord start = (appendWP) ? cwp.back() : mi2->second.coord;
 
         // alphatest -- player move input
-        // IsInsideMap(x, y) was already checked when this function is called
-        if ((!ctrlPressed) &&
-            (Distance_To_POI[POIINDEX_CENTER][y][x] > 0) ) // -1 if not walkable, 0 if not reachable
+        if (Game::IsInsideMap(x, y)) // was already checked when this function is called
+        if (!ctrlPressed)
         {
+          //                         -1 if not walkable, 0 if not reachable
+          bool target_unreachable = (Distance_To_POI[POIINDEX_CENTER][y][x] <= 0) ? true : false;
+
           // If path start point is outside of a safezone, snap end point to a nearby flagpole with coins.
           // If entire path is inside of a safezone, do nothing.
           // If the path starts inside of a safezone but leaves the safezone, snap end point to any nearby flagpole.
@@ -742,8 +744,19 @@ void ManageNamesPage::onTileClicked(int x, int y, bool ctrlPressed)
                 // -1 if not walkable, 0 if not reachable
                 // there are tiles in this map that are walkable but still unreachable
 
+                if (target_unreachable)
+                {
+                    // can't use walk distance if unreachable
+                    d = (abs(POI_pos_xa[k] - x));
+                    int d2 = (abs(POI_pos_ya[k] - y));
+                    if (d2 > d) d = d2;
+                }
+
                 // Do nothing if path end point is already close enough to a flagpole.
-                if (d <= 12)
+                // - maximum distance for "close enough" is 12, i.e. "if (d <= 12)"
+                // - it would be ok to snap always, regardless of distance
+                if (d <= 2)
+                if (!target_unreachable)
                 {
                     is_near_poi = true;
                     break;
