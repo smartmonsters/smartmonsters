@@ -520,6 +520,10 @@ public:
 };
 
 
+// alphatest -- additional elements for queued player path
+int auxPathCircle1x, auxPathCircle2x, auxPathCircle1y, auxPathCircle2y;
+int auxPathMsg, auxPathWarning;
+
 // alphatest -- more map tiles
 bool Display_dbg_allow_tile_offset = true;
 bool Display_dbg_obstacle_marker = true;
@@ -1614,7 +1618,7 @@ public:
 
 GameMapView::GameMapView(QWidget *parent)
     : QGraphicsView(parent), zoomFactor(1.0), panning(false), use_cross_cursor(false), scheduledZoom(1.0),
-    grobjs(new GameGraphicsObjects), playerPath(NULL), queuedPlayerPath(NULL)
+    grobjs(new GameGraphicsObjects), playerPath(NULL), queuedPlayerPath(NULL), auxPathCircle1(NULL), auxPathCircle2(NULL), auxPathText1(NULL), auxPathText2(NULL)
 {
     scene = new QGraphicsScene(this);
 
@@ -1883,13 +1887,7 @@ void GameMapView::updateGameMap(const GameState &gameState)
             }
             else if (characterState.ai_chat == AI_LEARNRESULT_OK)
             {
-                int b = gameState.nHeight % RPG_INTERVAL_MONSTERAPOCALYPSE;
-                int b_start = gameState.nHeight - b;
-                int b_start_next = b_start + RPG_INTERVAL_MONSTERAPOCALYPSE;
-
-                entry.name += QString::fromStdString(" 'MOVEMENT ORDER FOR CHRONON ");
-                entry.name += QString::number(b_start_next);
-                entry.name += QString::fromStdString(" ACKNOWLEDGED!'");
+                entry.name += QString::fromStdString(" 'TRAVEL ORDER ACKNOWLEDGED!'");
             }
             else if (characterState.ai_chat == AI_LEARNRESULT_FAIL_MONSTER)
             {
@@ -2629,6 +2627,117 @@ void GameMapView::SelectPlayer(const QString &name, const GameState &state, Queu
     {
         queuedPlayerPath = scene->addPath(queuedPath, grobjs->gray_pen);
         queuedPlayerPath->setZValue(1e9 + 2);
+
+        // alphatest -- additional elements for queued player path
+        QPen no_pen(Qt::NoPen);
+        if(auxPathMsg)
+        {
+            auxPathCircle1 = scene->addEllipse((auxPathCircle1x - 12) * TILE_SIZE, (auxPathCircle1y - 12) * TILE_SIZE,
+                24 * TILE_SIZE, 24 * TILE_SIZE,
+                no_pen, QColor(255, 255, 255, 40));
+
+            QString qs = "This is one of the many areas along\nthe 'Outer Ring' path around the map.\nAbout 20 coins spawn here per day,\nbut this varies with size.";
+            if (auxPathMsg == POIINDEX_CENTER)
+            {
+                qs = "The market place is a safe zone,\ncombat is not allowed here.\nItems and weapons can be bought\nby visiting the Merchant NPCs.\nThis area is devoid of any\ncoin or heart spawning tiles.";
+            }
+            else if ((auxPathMsg > POIINDEX_CENTER) && (auxPathMsg < POIINDEX_CRESCENT_FIRST))
+            {
+                if (auxPathMsg <= POIINDEX_CENTER + 4)
+                    qs = "This area is very small\nand will not yield much.\nStaying here is extremely dangerous\nas monsters stampeding towards\nthe center is a regular sight.";
+                else
+                    qs = "One of 16 areas at the 'Inner Ring'\nbeltway around the map center.\nCombat is common throughout this entire zone.\nThis area will spawn about 100 coins per day.";
+            }
+            if ((auxPathMsg >= POIINDEX_CRESCENT_FIRST) && (auxPathMsg <= POIINDEX_CRESCENT_LAST))
+            {
+                if ((auxPathMsg == POIINDEX_CRESCENT_FIRST) ||
+                    (auxPathMsg == POIINDEX_CRESCENT_FIRST + 3) ||
+                    (auxPathMsg == POIINDEX_CRESCENT_FIRST + 6) ||
+                    (auxPathMsg == POIINDEX_CRESCENT_FIRST + 9))
+                    qs = "Going to this big crescent shaped\narea from the nearby player base\nis relatively safe.\nThe area spawns 576 coins per day.";
+                else
+                    qs = "Small area next to the big crescent's horn\nand surrounded by dense forest.\nIt will yield 288 coins per day,\ndespite its size.";
+            }
+            else if ((auxPathMsg >= POIINDEX_MONSTER_FIRST) && (auxPathMsg <= POIINDEX_MONSTER_LAST))
+            {
+                if (auxPathMsg > POIINDEX_MONSTER_LAST - 4)
+                    qs = "This area midway between player bases\nspawns about 250 coins per day.\nAlong with its 2 small neighbours,\nit has a special level cap: while staying here,\ncharacter level is temporarily reduced to 3.";
+                else
+                    qs = "One of 8 areas that are slightly\nsmaller but otherwise similar\nto the 16 areas surrounding the center.\nYield is about 90 coins per day.\n";
+            }
+            else if (auxPathMsg > POIINDEX_NORMAL_LAST)
+            {
+                qs = "Player base. This is a safe zone,\ncombat is not allowed, and\ncoins or hearts will not spawn here.\nEntry is restricted to members of the\nmatching color faction.";
+            }
+
+            int b = state.nHeight % RPG_INTERVAL_MONSTERAPOCALYPSE;
+            int b_start = state.nHeight - b;
+            int b_start_next = b_start + RPG_INTERVAL_MONSTERAPOCALYPSE;
+            int b_countdown = RPG_INTERVAL_MONSTERAPOCALYPSE - b;
+            int b_chance = 100;
+            if (b_countdown < RPG_INTERVAL_MONSTERAPOCALYPSE / 2)
+            {
+                b_chance = b_countdown * 100 / (RPG_INTERVAL_MONSTERAPOCALYPSE / 2);
+            }
+            QString qs2 = "\n\nPress 'Go' to send travel order\nfor chronon ";
+            qs2 += QString::number(b_start_next);
+            qs2 += QString::fromStdString(" (");
+            qs2 += QString::number(b_chance);
+            qs2 += QString::fromStdString("% chance)");
+            if (b_chance < 100)
+            {
+                qs2 += QString::fromStdString("\nor chronon ");
+                qs2 += QString::number(b_start_next + RPG_INTERVAL_MONSTERAPOCALYPSE);
+                qs2 += QString::fromStdString(" (");
+                qs2 += QString::number(100 -b_chance);
+                qs2 += QString::fromStdString("% chance)");
+            }
+            qs2 += QString::fromStdString(".");
+            qs += qs2;
+
+            int xpix_text = (auxPathCircle1x - 4) * TILE_SIZE;
+            int ypix_text = (auxPathCircle1y - 11) * TILE_SIZE;
+            if (xpix_text < 1) xpix_text = 1;
+            if (ypix_text < 1) ypix_text = 1;
+            auxPathText1 = scene->addText(qs, QFont ("Arial", 20));
+            auxPathText1->setPos(xpix_text, ypix_text);
+            auxPathText1->setZValue(1e9);
+            auxPathText1->setDefaultTextColor(QColor(255, 255, 255, 255));
+        }
+
+        if (auxPathWarning == AUXPATHWARNING_NEWISOLD)
+        {
+            auxPathCircle2 = scene->addEllipse((auxPathCircle2x - 12) * TILE_SIZE, (auxPathCircle2y - 12) * TILE_SIZE,
+                24 * TILE_SIZE, 24 * TILE_SIZE,
+                no_pen, QColor(255, 0, 0, 60));
+
+            auxPathText2 = scene->addText("This is the favorite area\nfor this unit's AI.\nAn order to travel there will have\nno effect and waste the move.", QFont ("Arial", 20));
+            auxPathText2->setPos((auxPathCircle2x - 5) * TILE_SIZE, (auxPathCircle2y - 8) * TILE_SIZE);
+            auxPathText2->setZValue(1e9 + 3);
+            auxPathText2->setDefaultTextColor(QColor(255, 255, 255, 255));
+        }
+        else if (auxPathWarning == AUXPATHWARNING_UNWALKABLE)
+        {
+            auxPathCircle2 = scene->addEllipse((auxPathCircle2x - 1) * TILE_SIZE, (auxPathCircle2y - 1) * TILE_SIZE,
+                2 * TILE_SIZE, 2 * TILE_SIZE,
+                no_pen, QColor(255, 0, 0, 100));
+
+            auxPathText2 = scene->addText("This spot is not walkable terrain,\nor is not reachable.\n(Path snapped to nearest area marker)", QFont ("Arial", 20));
+            auxPathText2->setPos((auxPathCircle2x - 4) * TILE_SIZE, (auxPathCircle2y - 4) * TILE_SIZE);
+            auxPathText2->setZValue(1e9 + 3);
+            auxPathText2->setDefaultTextColor(QColor(255, 255, 255, 255));
+        }
+        else if (auxPathWarning == AUXPATHWARNING_WASTELAND)
+        {
+            auxPathCircle2 = scene->addEllipse((auxPathCircle2x - 1) * TILE_SIZE, (auxPathCircle2y - 1) * TILE_SIZE,
+                2 * TILE_SIZE, 2 * TILE_SIZE,
+                no_pen, QColor(255, 0, 0, 100));
+
+            auxPathText2 = scene->addText("This spot is too far away from,\nany point of interest.\n(Path snapped to nearest area marker)", QFont ("Arial", 20));
+            auxPathText2->setPos((auxPathCircle2x - 4) * TILE_SIZE, (auxPathCircle2y - 4) * TILE_SIZE);
+            auxPathText2->setZValue(1e9 + 3);
+            auxPathText2->setDefaultTextColor(QColor(255, 255, 255, 255));
+        }
     }
 
     use_cross_cursor = true;
@@ -2643,7 +2752,7 @@ void GameMapView::CenterMapOnCharacter(const Game::CharacterState &state)
 
 void GameMapView::DeselectPlayer()
 {
-    if (playerPath || queuedPlayerPath)
+    if (playerPath || queuedPlayerPath || auxPathCircle1 || auxPathCircle2 || auxPathText1 || auxPathText2)
     {
         if (playerPath)
         {
@@ -2657,6 +2766,32 @@ void GameMapView::DeselectPlayer()
             delete queuedPlayerPath;
             queuedPlayerPath = NULL;
         }
+        // alphatest -- additional elements for queued player path
+        if (auxPathCircle1)
+        {
+            scene->removeItem(auxPathCircle1);
+            delete auxPathCircle1;
+            auxPathCircle1 = NULL;
+        }
+        if (auxPathCircle2)
+        {
+            scene->removeItem(auxPathCircle2);
+            delete auxPathCircle2;
+            auxPathCircle2 = NULL;
+        }
+        if (auxPathText1)
+        {
+            scene->removeItem(auxPathText1);
+            delete auxPathText1;
+            auxPathText1 = NULL;
+        }
+        if (auxPathText2)
+        {
+            scene->removeItem(auxPathText2);
+            delete auxPathText2;
+            auxPathText2 = NULL;
+        }
+
         //scene->invalidate();
         repaint(rect());
     }

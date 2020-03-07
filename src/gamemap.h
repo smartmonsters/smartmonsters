@@ -438,5 +438,11 @@ extern int AI_playermap[Game::MAP_HEIGHT][Game::MAP_WIDTH][4];
 #define AI_LEARNRESULT_FAIL_BLOODLUST 205
 #define AI_LEARNRESULT_FAIL_IRREVOCABLE 206
 
+// alphatest -- additional elements for queued player path
+extern int auxPathCircle1x, auxPathCircle2x, auxPathCircle1y, auxPathCircle2y;
+extern int auxPathMsg, auxPathWarning;
+#define AUXPATHWARNING_NEWISOLD 1
+#define AUXPATHWARNING_UNWALKABLE 2
+#define AUXPATHWARNING_WASTELAND 3
 
 #endif

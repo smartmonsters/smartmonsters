@@ -693,13 +693,24 @@ void ManageNamesPage::onTileClicked(int x, int y, bool ctrlPressed)
         Game::Coord start = (appendWP) ? cwp.back() : mi2->second.coord;
 
         // alphatest -- player move input
+        auxPathMsg = 0;
+        auxPathWarning = 0;
         if (Game::IsInsideMap(x, y)) // was already checked when this function is called
         if (!ctrlPressed)
         {
           //                         -1 if not walkable, 0 if not reachable
           bool target_unreachable = (Distance_To_POI[POIINDEX_CENTER][y][x] <= 0) ? true : false;
+//          auxPathMsg = 0;
+//          auxPathWarning = 0;
+          if (target_unreachable)
+          {
+              auxPathWarning = AUXPATHWARNING_UNWALKABLE;
+              auxPathCircle2x = x;
+              auxPathCircle2y = y;
+          }
 
           // If path start point is outside of a safezone, snap end point to a nearby flagpole with coins.
+          // (don't snap if end point is close enough to flagpole)
           // If entire path is inside of a safezone, do nothing.
           // If the path starts inside of a safezone but leaves the safezone, snap end point to any nearby flagpole.
           bool snap_to_flagpole = false;
@@ -720,26 +731,13 @@ void ManageNamesPage::onTileClicked(int x, int y, bool ctrlPressed)
           {
             int k_favorite = mi2->second.ai_fav_harvest_poi;
             int k_nearest = -1;
+            int k_nearest_not_favorite = -1;
             int d_nearest = AI_DIST_INFINITE;
+            int d_nearest_not_favorite = AI_DIST_INFINITE;
             bool is_near_poi = false;
 
             for (int k = POIINDEX_CENTER; k < AI_NUM_POI; k++)
             {
-                // if the new path would not change movement order for the character's AI
-                if (k == k_favorite) continue;
-
-                // try to be smart
-                if ((abs(x - start.x)) > (abs(y - start.y)))
-                {
-                    if ((x - start.x < 0) && (POI_pos_xa[k] - start.x > 0)) continue;
-                    if ((x - start.x > 0) && (POI_pos_xa[k] - start.x < 0)) continue;
-                }
-                else
-                {
-                    if ((y - start.y < 0) && (POI_pos_ya[k] - start.y > 0)) continue;
-                    if ((y - start.y > 0) && (POI_pos_ya[k] - start.y < 0)) continue;
-                }
-
                 int d = Distance_To_POI[k][y][x];
                 // -1 if not walkable, 0 if not reachable
                 // there are tiles in this map that are walkable but still unreachable
@@ -752,27 +750,78 @@ void ManageNamesPage::onTileClicked(int x, int y, bool ctrlPressed)
                     if (d2 > d) d = d2;
                 }
 
-                // Do nothing if path end point is already close enough to a flagpole.
-                // - maximum distance for "close enough" is 12, i.e. "if (d <= 12)"
-                // - it would be ok to snap always, regardless of distance
-                if (d <= 2)
-                if (!target_unreachable)
+                // try to be smart
+                if (k != k_favorite)
+                if ((abs(x - start.x)) > (abs(y - start.y)))
                 {
-                    is_near_poi = true;
-                    break;
+                    if ((x - start.x < 0) && (POI_pos_xa[k] - start.x > 0)) continue;
+                    if ((x - start.x > 0) && (POI_pos_xa[k] - start.x < 0)) continue;
+                }
+                else
+                {
+                    if ((y - start.y < 0) && (POI_pos_ya[k] - start.y > 0)) continue;
+                    if ((y - start.y > 0) && (POI_pos_ya[k] - start.y < 0)) continue;
+                }
+
+                if (k != k_favorite)
+                if (d < d_nearest_not_favorite)
+                {
+                    d_nearest_not_favorite = d;
+                    k_nearest_not_favorite = k;
                 }
 
                 if (d < d_nearest)
                 {
                     d_nearest = d;
                     k_nearest = k;
+
+                    // Do nothing if path end point is already close enough to a flagpole.
+                    // - maximum distance for "close enough" is 12, i.e. "if (d <= 12)"
+                    // - it would be ok to snap always, regardless of distance
+                    if (d <= 11)
+                    if (!target_unreachable)
+                    {
+                        is_near_poi = true;
+                        // no "break;" to allow low distance between areas
+                    }
+                }
+            }
+
+            // alphatest -- additional elements for queued player path
+            if (k_nearest > -1)
+            if (is_near_poi)
+            {
+                if (k_nearest == k_favorite)
+                {
+                    // allow to queue move to old favorite area but show warning
+                    auxPathWarning = AUXPATHWARNING_NEWISOLD;
+                    auxPathCircle2x = POI_pos_xa[k_favorite];
+                    auxPathCircle2y = POI_pos_ya[k_favorite];
+                }
+                else
+                {
+                    // show info about new area
+                    auxPathMsg = k_nearest;
+                    auxPathCircle1x = POI_pos_xa[k_nearest];
+                    auxPathCircle1y = POI_pos_ya[k_nearest];
                 }
             }
             // snap target coors to nearest flagpole
-            if ((!is_near_poi) && (k_nearest > -1))
+            else if (k_nearest_not_favorite > -1)
             {
-                target.x = x = POI_pos_xa[k_nearest];
-                target.y = y = POI_pos_ya[k_nearest];
+                if (!auxPathWarning) // warning about unwalkable tile has priority
+                {
+                    auxPathWarning = AUXPATHWARNING_WASTELAND;
+                    auxPathCircle2x = x;
+                    auxPathCircle2y = y;
+                }
+
+                auxPathMsg = k_nearest_not_favorite;
+                auxPathCircle1x = POI_pos_xa[k_nearest_not_favorite];
+                auxPathCircle1y = POI_pos_ya[k_nearest_not_favorite];
+
+                target.x = x = POI_pos_xa[k_nearest_not_favorite];
+                target.y = y = POI_pos_ya[k_nearest_not_favorite];
             }
           }
         }

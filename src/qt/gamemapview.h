@@ -62,6 +62,11 @@ private:
 
     GameMapCache *gameMapCache;
     QGraphicsPathItem *playerPath, *queuedPlayerPath;
+
+    // alphatest -- additional elements for queued player path
+    QGraphicsEllipseItem *auxPathCircle1, *auxPathCircle2;
+    QGraphicsTextItem *auxPathText1, *auxPathText2;
+
     QPainter::RenderHints defaultRenderHints;
 
     bool panning;
