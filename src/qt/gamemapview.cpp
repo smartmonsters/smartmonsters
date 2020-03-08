@@ -534,8 +534,9 @@ int Display_dbg_maprepaint_cachehits = 0;
 int Displaycache_grassoffs_x[RPG_MAP_HEIGHT][RPG_MAP_WIDTH][MAP_LAYERS + SHADOW_LAYERS + SHADOW_EXTRALAYERS];
 int Displaycache_grassoffs_y[RPG_MAP_HEIGHT][RPG_MAP_WIDTH][MAP_LAYERS + SHADOW_LAYERS + SHADOW_EXTRALAYERS];
 
+// Semi-random offset for grass tiles.
 int Display_go_x[7] = {12, 26, 7, 13, 34, 18, 1};
-int Display_go_y[7] = {19, 1, 29, 8, 16, 20, 34};
+int Display_go_y[7] = {19, 1, 24, 8, 16, 20, 12};
 int Display_go_idx = 0;
 
 uint64_t Display_rng[2] = {98347239859043, 653935414278534};
@@ -2634,7 +2635,7 @@ void GameMapView::SelectPlayer(const QString &name, const GameState &state, Queu
         {
             auxPathCircle1 = scene->addEllipse((auxPathCircle1x - 12) * TILE_SIZE, (auxPathCircle1y - 12) * TILE_SIZE,
                 24 * TILE_SIZE, 24 * TILE_SIZE,
-                no_pen, QColor(255, 255, 255, 40));
+                no_pen, QColor(125, 125, 125, 120));
 
             QString qs = "This is one of the many areas along\nthe 'Outer Ring' path around the map.\nAbout 20 coins spawn here per day,\nbut this varies with size.";
             if (auxPathMsg == POIINDEX_CENTER)
@@ -2701,7 +2702,7 @@ void GameMapView::SelectPlayer(const QString &name, const GameState &state, Queu
             if (ypix_text < 1) ypix_text = 1;
             auxPathText1 = scene->addText(qs, QFont ("Arial", 20));
             auxPathText1->setPos(xpix_text, ypix_text);
-            auxPathText1->setZValue(1e9);
+            auxPathText1->setZValue(1e9 + 3);
             auxPathText1->setDefaultTextColor(QColor(255, 255, 255, 255));
         }
 
@@ -2722,8 +2723,14 @@ void GameMapView::SelectPlayer(const QString &name, const GameState &state, Queu
                 2 * TILE_SIZE, 2 * TILE_SIZE,
                 no_pen, QColor(255, 0, 0, 100));
 
-            auxPathText2 = scene->addText("This spot is not walkable terrain,\nor is not reachable.\n(Path snapped to nearest area marker)", QFont ("Arial", 20));
-            auxPathText2->setPos((auxPathCircle2x - 4) * TILE_SIZE, (auxPathCircle2y - 4) * TILE_SIZE);
+            // separate this text from area information text
+            int ypix_text = (auxPathCircle2y - 4) * TILE_SIZE;
+            if (abs(auxPathCircle1x - auxPathCircle2x) < 9)
+                if (abs((auxPathCircle1y - 5) - auxPathCircle2y) < 4)
+                    ypix_text += 6 * TILE_SIZE;
+
+            auxPathText2 = scene->addText("This spot can't be reached\nor is not walkable terrain.\n(Path snapped to nearest area marker)", QFont ("Arial", 20));
+            auxPathText2->setPos((auxPathCircle2x - 4) * TILE_SIZE, ypix_text);
             auxPathText2->setZValue(1e9 + 3);
             auxPathText2->setDefaultTextColor(QColor(255, 255, 255, 255));
         }

@@ -700,14 +700,6 @@ void ManageNamesPage::onTileClicked(int x, int y, bool ctrlPressed)
         {
           //                         -1 if not walkable, 0 if not reachable
           bool target_unreachable = (Distance_To_POI[POIINDEX_CENTER][y][x] <= 0) ? true : false;
-//          auxPathMsg = 0;
-//          auxPathWarning = 0;
-          if (target_unreachable)
-          {
-              auxPathWarning = AUXPATHWARNING_UNWALKABLE;
-              auxPathCircle2x = x;
-              auxPathCircle2y = y;
-          }
 
           // If path start point is outside of a safezone, snap end point to a nearby flagpole with coins.
           // (don't snap if end point is close enough to flagpole)
@@ -729,6 +721,13 @@ void ManageNamesPage::onTileClicked(int x, int y, bool ctrlPressed)
 
           if (snap_to_flagpole)
           {
+            if (target_unreachable)
+            {
+                auxPathWarning = AUXPATHWARNING_UNWALKABLE;
+                auxPathCircle2x = x;
+                auxPathCircle2y = y;
+            }
+
             int k_favorite = mi2->second.ai_fav_harvest_poi;
             int k_nearest = -1;
             int k_nearest_not_favorite = -1;
