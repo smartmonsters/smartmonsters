@@ -4939,8 +4939,9 @@ GameState::PrintPlayerStats()
 
             fprintf(fp, "\n Block %7d, %s\n", nHeight, fTestNet ? "testnet" : "mainnet");
             fprintf(fp, " ----------------------\n\n");
-            fprintf(fp, "                                                     Survival                                     AI                AI favorite area                 Queued player order\n");
-            fprintf(fp, "      Name     Role   Level  Coins      Age  Rations points   Weapon   Amulett  Ring     Armor    Package1 Package2 Area and Position  Path length   Area and Position  Path length  Chance\n\n");
+            fprintf(fp, "                                                                                                                                   AI Favorite Area         Queued Travel Order\n");
+            fprintf(fp, "                                                    Survival  Staff/                                       AI           AI\n");
+            fprintf(fp, "      Name     Role   Level  Coins      Age  Rations points        Weapon   Amulett   Ring      Armor      Package1     Package2   Area Position Distance   Area Position Distance Chance\n\n");
 
             BOOST_FOREACH(PAIRTYPE(const PlayerID, PlayerState) &p, players)
             {
@@ -4962,42 +4963,42 @@ GameState::PrintPlayerStats()
                     else srole += "PC </font>";
 
                     std::string sw = "Dagger";
-                    if (ch.rpg_slot_spell == AI_ATTACK_POISON) sw = "SoPC";
-                    else if (ch.rpg_slot_spell == AI_ATTACK_FIRE) sw = "SoFB";
-                    else if (ch.rpg_slot_spell == AI_ATTACK_DEATH) sw = "SotR";
+                    if (ch.rpg_slot_spell == AI_ATTACK_POISON) sw = "<font color=#66ff00>PoisonCloud</font>";
+                    else if (ch.rpg_slot_spell == AI_ATTACK_FIRE) sw = "<font color=#ff8800>Fireball   </font>";
+                    else if (ch.rpg_slot_spell == AI_ATTACK_DEATH) sw = "Reaper     ";
                     else if (ch.rpg_slot_spell == AI_ATTACK_XBOW) sw = "Xbow";
                     else if (ch.rpg_slot_spell == AI_ATTACK_KNIGHT) sw = "Sword";
                     else if (ch.rpg_slot_spell == AI_ATTACK_ESTOC) sw = "Estoc";
-                    else if (ch.rpg_slot_spell == AI_ATTACK_LIGHTNING) sw = "SoCL";
-                    else if (ch.rpg_slot_spell == AI_ATTACK_XBOW3) sw = "Arba.";
+                    else if (ch.rpg_slot_spell == AI_ATTACK_LIGHTNING) sw = "<font color=#aaaaff>Lightning  </font>";
+                    else if (ch.rpg_slot_spell == AI_ATTACK_XBOW3) sw = "Arbalest";
 
-                    std::string sa = "  -   ";
-                    if (ch.ai_slot_amulet == AI_ITEM_WORD_RECALL) sa = "Recall";
-                    else if (ch.ai_slot_amulet == AI_ITEM_REGEN) sa = "Regen.";
-                    else if (ch.ai_slot_amulet == AI_ITEM_LIFE_SAVING) sa = "LifeS";
+                    std::string sa = "   -";
+                    if (ch.ai_slot_amulet == AI_ITEM_WORD_RECALL) sa = "Recall ";
+                    else if (ch.ai_slot_amulet == AI_ITEM_REGEN) sa = "Regen. ";
+                    else if (ch.ai_slot_amulet == AI_ITEM_LIFE_SAVING) sa = "LifeSav";
 
-                    std::string sr = "  -   ";
-                    if (ch.ai_slot_ring == AI_ITEM_WORD_RECALL) sr = "Recall";
-                    else if (ch.ai_slot_ring == AI_ITEM_REGEN) sr = "Regen.";
-                    else if (ch.ai_slot_ring == AI_ITEM_LIFE_SAVING) sr = "LifeS";
+                    std::string sr = "   -";
+                    if (ch.ai_slot_ring == AI_ITEM_WORD_RECALL) sr = "Recall ";
+                    else if (ch.ai_slot_ring == AI_ITEM_REGEN) sr = "Regen. ";
+                    else if (ch.ai_slot_ring == AI_ITEM_LIFE_SAVING) sr = "LifeSav";
 
-                    std::string sar = "  -   ";
-                    if (ch.rpg_slot_armor == RPG_ARMOR_BUFFCOAT) sar = "B.Coat";
-                    else if (ch.rpg_slot_armor == RPG_ARMOR_LINEN) sar = "Linen";
-                    else if (ch.rpg_slot_armor == RPG_ARMOR_SCALE) sar = "Scale";
-                    else if (ch.rpg_slot_armor == RPG_ARMOR_SPLINT) sar = "Splint";
-                    else if (ch.rpg_slot_armor == RPG_ARMOR_PLATE) sar = "Plate";
+                    std::string sar = "   -";
+                    if (ch.rpg_slot_armor == RPG_ARMOR_BUFFCOAT) sar = "BuffCoat";
+                    else if (ch.rpg_slot_armor == RPG_ARMOR_LINEN) sar = "Linen   ";
+                    else if (ch.rpg_slot_armor == RPG_ARMOR_SCALE) sar = "Scale   ";
+                    else if (ch.rpg_slot_armor == RPG_ARMOR_SPLINT) sar = "Splinted";
+                    else if (ch.rpg_slot_armor == RPG_ARMOR_PLATE) sar = "Plate   ";
 
                     std::string sai1 = "";
-                    if (ch.ai_state & AI_STATE_MARK_RECALL) sai1 = "Mark+R";
-                    else if (ch.ai_state & AI_STATE_RESTING) sai1 = "Rest.";
-                    else if (ch.ai_state & AI_STATE_SURVIVAL) sai1 = "Surviv";
-                    else sai1 = "  -   ";
+                    if (ch.ai_state & AI_STATE_MARK_RECALL) sai1 = "MarkRecall";
+                    else if (ch.ai_state & AI_STATE_RESTING) sai1 = "Resting   ";
+                    else if (ch.ai_state & AI_STATE_SURVIVAL) sai1 = "Survival  ";
+                    else sai1 = "   -";
 
                     std::string sai2 = "";
-                    if (ch.ai_state3 & AI_STATE3_FANATISM) sai2 = "Fanat.";
-                    else if (ch.ai_state3 & AI_STATE3_DUTY) sai2 = "Duty";
-                    else sai2 = "  -   ";
+                    if (ch.ai_state3 & AI_STATE3_FANATISM) sai2 = "Fanatic";
+                    else if (ch.ai_state3 & AI_STATE3_DUTY) sai2 = "Duty   ";
+                    else sai2 = "   -";
 
                     int tmp_fav_point = ch.ai_fav_harvest_poi;
                     if (tmp_fav_point >= AI_NUM_POI) continue;
@@ -5023,32 +5024,32 @@ GameState::PrintPlayerStats()
                     if (time_since_order > time_for_100_percent)
                         time_since_order = time_for_100_percent; // chance of order being executed
 
+                    fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d  %5d  %5d     %11s   %-7s   %-7s   %-8s   %-10s   %-8s", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str());
+
                     if (tmp_fav_point >= POIINDEX_NORMAL_FIRST)
                     {
-                        fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d  %5d  %5d     %6s   %6s   %6s   %6s   %6s   %6s   area#%-3d  %3d,%-3d    %4d", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str(),
-                                tmp_fav_point, nfx, nfy, Distance_To_POI[tmp_fav_point][ch.coord.y][ch.coord.x]);
+                        fprintf(fp, "   #%-3d  %3d,%-3d %4d", tmp_fav_point, nfx, nfy, Distance_To_POI[tmp_fav_point][ch.coord.y][ch.coord.x]);
 
                         if (tmp_queued_point > 0)
                         {
-                            fprintf(fp, "        area#%-3d  %3d,%-3d    %4d    %d/%d", tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][nfy][nfx], time_since_order, time_for_100_percent);
+                            fprintf(fp, "       #%-3d  %3d,%-3d   %4d  %4d,%-4d", tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][nfy][nfx], time_since_order, time_for_100_percent);
                             if (tmp_marked_point > 0)
-                                fprintf(fp, "  MARKED area#%-3d  %3d,%-3d", tmp_marked_point, nmx, nmy);
+                                fprintf(fp, "   MARKED area#%-3d %3d,%-3d", tmp_marked_point, nmx, nmy);
                             if (tmp_duty_point > 0)
-                                fprintf(fp, "  DUTY area#%-3d  %3d,%-3d", tmp_marked_point, ndx, ndy);
+                                fprintf(fp, "   DUTY area#%-3d %3d,%-3d", tmp_duty_point, ndx, ndy);
                         }
                         fprintf(fp, "\n");
                     }
                     else
                     {
-                        fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d  %5d  %5d     %6s   %6s   %6s   %6s   %6s   %6s", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str());
-
                         if (tmp_queued_point > 0)
                         {
-                            fprintf(fp, "                                    area#%-3d  %3d,%-3d    %4d    %d/%d", tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][ch.coord.y][ch.coord.x], time_since_order, time_for_100_percent);
+                            fprintf(fp, "                     ");
+                            fprintf(fp, "       #%-3d  %3d,%-3d   %4d  %4d,%-4d", tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][ch.coord.y][ch.coord.x], time_since_order, time_for_100_percent);
                             if (tmp_marked_point > 0)
-                                fprintf(fp, "  MARKED area#%-3d  %3d,%-3d", tmp_marked_point, nmx, nmy);
+                                fprintf(fp, "   MARKED area#%-3d %3d,%-3d", tmp_marked_point, nmx, nmy);
                             if (tmp_duty_point > 0)
-                                fprintf(fp, "  DUTY area#%-3d  %3d,%-3d", tmp_marked_point, ndx, ndy);
+                                fprintf(fp, "   DUTY area#%-3d %3d,%-3d", tmp_duty_point, ndx, ndy);
                         }
                         fprintf(fp, "\n");
                     }
