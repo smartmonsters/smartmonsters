@@ -4932,16 +4932,30 @@ GameState::PrintPlayerStats()
             fprintf(fp, "body {\n");
             fprintf(fp, "        color: white;\n");
             fprintf(fp, "        background-color: #111111;\n");
+            fprintf(fp, "     }\n");
             fprintf(fp, "</style>\n");
+            fprintf(fp, "<body link=\"#00FFFF\" vlink=\"#AAAAFF\" alink=\"#FFAAAA\">");
             fprintf(fp, "</head>\n");
             fprintf(fp, "<body>\n");
             fprintf(fp, "<pre>\n");
 
+            // links to online manual
+            std::string sl_main = "<a href=\"https://smartmonsters.github.io/Manual";
+            std::string sl_weapon = sl_main + "2.html#Weapons\">Weapon</a>";
+            std::string sl_staff = sl_main + "2.html#Weapons\">Staff/</a>";
+            std::string sl_clevel = sl_main + "2.html#Clevels\">Level</a>";
+            std::string sl_ration = sl_main + "2.html#Upkeep\">Rations</a>";
+            std::string sl_items = sl_main + "2.html#Items\">Armor</a>";
+            std::string sl_amulets = sl_main + "2.html#Amulets\">Amulet</a>";
+            std::string sl_rings = sl_main + "2.html#Rings\">Ring</a>";
+            std::string sl_spells = sl_main + "2.html#Spells\">Package1</a>";
+            std::string sl_drinks = sl_main + "2.html#Upkeep\">Package2</a>";
+
             fprintf(fp, "\n Block %7d, %s\n", nHeight, fTestNet ? "testnet" : "mainnet");
             fprintf(fp, " ----------------------\n\n");
             fprintf(fp, "                                                                                                                                   AI Favorite Area         Queued Travel Order\n");
-            fprintf(fp, "                                                    Survival  Staff/                                       AI           AI\n");
-            fprintf(fp, "      Name     Role   Level  Coins      Age  Rations points        Weapon   Amulett   Ring      Armor      Package1     Package2   Area Position Distance   Area Position Distance Chance\n\n");
+            fprintf(fp, "                                                    Survival  %s                                       AI           AI\n", sl_staff.c_str());
+            fprintf(fp, "      Name    Role  %s   Coins      Age  %s  points        %s   %s     %s    %s       %s     %s   Area Position Distance   Area Position Distance Chance\n\n", sl_clevel.c_str(), sl_ration.c_str(), sl_weapon.c_str(), sl_items.c_str(), sl_amulets.c_str(), sl_rings.c_str(), sl_spells.c_str(), sl_drinks.c_str());
 
             BOOST_FOREACH(PAIRTYPE(const PlayerID, PlayerState) &p, players)
             {
