@@ -4917,6 +4917,9 @@ GameState::PrintPlayerStats()
 
         FILE *fp;
 
+        // links to online manual
+        std::string sl_main = "<a href=\"https://smartmonsters.github.io/Manual";
+
         fp = fopen("stats_characters.html", "w");
         if (fp != NULL)
         {
@@ -4940,7 +4943,6 @@ GameState::PrintPlayerStats()
             fprintf(fp, "<pre>\n");
 
             // links to online manual
-            std::string sl_main = "<a href=\"https://smartmonsters.github.io/Manual";
             std::string sl_weapon = sl_main + "2.html#Weapons\">Weapon</a>";
             std::string sl_staff = sl_main + "2.html#Weapons\">Staff/</a>";
             std::string sl_clevel = sl_main + "2.html#Clevels\">Level</a>";
@@ -5091,17 +5093,24 @@ GameState::PrintPlayerStats()
             fprintf(fp, "body {\n");
             fprintf(fp, "        color: white;\n");
             fprintf(fp, "        background-color: #111111;\n");
+            fprintf(fp, "     }\n");
             fprintf(fp, "</style>\n");
+            fprintf(fp, "<body link=\"#00FFFF\" vlink=\"#AAAAFF\" alink=\"#FFAAAA\">");
             fprintf(fp, "</head>\n");
             fprintf(fp, "<body>\n");
             fprintf(fp, "<pre>\n");
 
+            // links to online manual
+            std::string sl_balancing = sl_main + "2.html#Balancing\">Special Rules</a>";
+            std::string sl_color = sl_main + "5.html#Color\">Color Teamss</a>";
+            std::string sl_champion = sl_main + "2.html#Champion\">Champions</a>";
+
             fprintf(fp, "\n Block %7d, %s\n", nHeight, fTestNet ? "testnet" : "mainnet");
             fprintf(fp, " ----------------------\n");
 
-            fprintf(fp, "\n\n Color Teams:\n");
+            fprintf(fp, "\n\n %s:\n", sl_color.c_str());
             fprintf(fp, " ------------\n\n");
-            fprintf(fp, "Number and Color        Total Score                  Champion\n\n");
+            fprintf(fp, "          Color          Total Score                %s     Coins\n\n", sl_champion.c_str());
             for (int ic = 0; ic < NUM_TEAM_COLORS; ic++)
             {
                 std::string s1 = "";
@@ -5114,7 +5123,7 @@ GameState::PrintPlayerStats()
                     fprintf(fp, "%10d %6s   %15"PRI64d" %10s\n", ic, Rpg_TeamColorDesc[ic].c_str(), Rpg_TeamBalanceCount[ic], s1.c_str());
             }
 
-            fprintf(fp, "\n\n Special Rules\n");
+            fprintf(fp, "\n\n %s\n", sl_balancing.c_str());
             fprintf(fp, " ------------\n\n");
 
             if (Rpg_hearts_spawn)
@@ -5194,10 +5203,17 @@ GameState::PrintPlayerStats()
             fprintf(fp, "body {\n");
             fprintf(fp, "        color: white;\n");
             fprintf(fp, "        background-color: #111111;\n");
+            fprintf(fp, "     }\n");
             fprintf(fp, "</style>\n");
+            fprintf(fp, "<body link=\"#00FFFF\" vlink=\"#AAAAFF\" alink=\"#FFAAAA\">");
             fprintf(fp, "</head>\n");
             fprintf(fp, "<body>\n");
             fprintf(fp, "<pre>\n");
+
+            // links to online manual
+            std::string sl_vote_request = sl_main + "3.html#Voting1\">Next voting interval</a>";
+            std::string sl_vote_howto = sl_main + "3.html#VotingHowto\">Current voting interval</a>";
+            std::string sl_vote_lockedcoin = sl_main + "5.html#Nameaddress\">Locked Coins</a>";
 
             fprintf(fp, "\n Block %7d, %s\n", nHeight, fTestNet ? "testnet" : "mainnet");
             fprintf(fp, " ----------------------\n");
@@ -5207,7 +5223,7 @@ GameState::PrintPlayerStats()
             int bountycycle_start_prev = bountycycle_start - RPG_INTERVAL_BOUNTYCYCLE;
             int bountycycle_start_next = bountycycle_start + RPG_INTERVAL_BOUNTYCYCLE;
 
-            fprintf(fp, "\n\n Next voting interval\n");
+            fprintf(fp, "\n\n %s\n", sl_vote_request.c_str());
             fprintf(fp, " --------------------\n\n");
             fprintf(fp, "Start at block                    %10d\n", bountycycle_start_next);
             fprintf(fp, "End at block                      %10d\n\n", bountycycle_start_next + RPG_INTERVAL_BOUNTYCYCLE);
@@ -5215,10 +5231,22 @@ GameState::PrintPlayerStats()
             fprintf(fp, "Highest fee                       %10s\n", FormatMoney(dao_BestFee).c_str());
             fprintf(fp, "Player name                       %10s\n", dao_BestName.c_str());
             fprintf(fp, "Requested bounty                  %10s\n", FormatMoney(dao_BestRequest).c_str());
-            sanitize_string(dao_BestComment);
-            fprintf(fp, "Comment                           %s\n", Displaycache_cleanstring);
+            if ( (dao_BestComment == "Upkeep shall be higher!") ||
+                 (dao_BestComment == "Upkeep shall be lower!") ||
+                 (dao_BestComment == "Increase the population limit!") ||
+                 (dao_BestComment == "Reduce the population limit!") ||
+                 (dao_BestComment == "All nodes must upgrade!") )
+            {
+                std::string sl_formal = sl_main + "3.html#Voting2\">" + dao_BestComment + "</a>";
+                fprintf(fp, "Comment                           %s\n", sl_formal.c_str());
+            }
+            else
+            {
+                sanitize_string(dao_BestComment);
+                fprintf(fp, "Comment                           %s\n", Displaycache_cleanstring);
+            }
 
-            fprintf(fp, "\n\n Current voting interval\n");
+            fprintf(fp, "\n\n %s\n", sl_vote_howto.c_str());
             fprintf(fp, " -----------------------\n\n");
             fprintf(fp, "Started at block                  %10d\n", bountycycle_start);
             fprintf(fp, "End at block                      %10d\n\n", bountycycle_start_next);
@@ -5226,8 +5254,20 @@ GameState::PrintPlayerStats()
             fprintf(fp, "Highest fee                       %10s\n", FormatMoney(dao_BestFeeFinal).c_str());
             fprintf(fp, "Player name                       %10s\n\n", dao_BestNameFinal.c_str());
             fprintf(fp, "Requested bounty                  %10s\n", FormatMoney(dao_BestRequestFinal).c_str());
-            sanitize_string(dao_BestCommentFinal);
-            fprintf(fp, "Comment                           %s\n", Displaycache_cleanstring);
+            if ( (dao_BestCommentFinal == "Upkeep shall be higher!") ||
+                 (dao_BestCommentFinal == "Upkeep shall be lower!") ||
+                 (dao_BestCommentFinal == "Increase the population limit!") ||
+                 (dao_BestCommentFinal == "Reduce the population limit!") ||
+                 (dao_BestCommentFinal == "All nodes must upgrade!") )
+            {
+                std::string sl_formal = sl_main + "3.html#Voting2\">" + dao_BestCommentFinal + "</a>";
+                fprintf(fp, "Comment                           %s\n", sl_formal.c_str());
+            }
+            else
+            {
+                sanitize_string(dao_BestCommentFinal);
+                fprintf(fp, "Comment                           %s\n", Displaycache_cleanstring);
+            }
 
             fprintf(fp, "Weight, all votes                 %10s\n", FormatMoney(Cache_voteweight_total).c_str());
             fprintf(fp, "        accept request            %10s\n", FormatMoney(Cache_voteweight_full).c_str());
@@ -5251,13 +5291,14 @@ GameState::PrintPlayerStats()
 
             fprintf(fp, "\n\n Player votes\n");
             fprintf(fp, " ------------\n\n");
-            fprintf(fp, "                 Locked    Looted    Voting   Tokens                           Bounty\n");
-            fprintf(fp, "      Name       Coins     Coins     Coins                Vote    block        Request  Fee     block             Comment\n\n");
+            fprintf(fp, "                                           Coins carried                                             Bounty\n");
+            fprintf(fp, "      Name    %s + Looted Coins - by Monsters  = Voting Coins         Vote    block        Request  Fee     block             Comment\n\n", sl_vote_lockedcoin.c_str());
 
             BOOST_FOREACH(PAIRTYPE(const PlayerID, PlayerState) &p, players)
             {
                 int64 total_loot = 0;
                 int64 tmp_weight = 0;
+                int64 tmp_not_weight = 0;
                 bool not_allowed_to_vote = false;
 
                 BOOST_FOREACH(PAIRTYPE(const int, CharacterState) &pc, p.second.characters)
@@ -5270,11 +5311,13 @@ GameState::PrintPlayerStats()
                     {
                         not_allowed_to_vote = true;
                     }
-                    // Monster generals can't vote
                     // Can't vote if individually monsterified
                     else if (NPCROLE_IS_MONSTER(ch.ai_npc_role))
                     {
-                         if (i == 0) not_allowed_to_vote = true;
+                        tmp_not_weight += ch.loot.nAmount;
+
+                        // Monster generals and their soldiers can't vote
+                        if (i == 0) not_allowed_to_vote = true;
                     }
                     else
                     {
@@ -5288,17 +5331,13 @@ GameState::PrintPlayerStats()
 
                 if (not_allowed_to_vote) tmp_weight = 0;
 
-                bool is_stale = ((p.second.msg_request_block < bountycycle_start_prev) && (p.second.msg_vote_block < bountycycle_start_prev));
+                bool is_stale = ((p.second.msg_request_block < bountycycle_start_prev) && (p.second.msg_vote_block < bountycycle_start));
                 if (is_stale)
                     fprintf(fp, "<font color=gray>");
-//                fprintf(fp, "%10s   %9s    %7d %7s %7s     %7d %7s %7s  %7s %7s    %s", p.first.c_str(), FormatMoney(total_loot / CENT * CENT).c_str(),
-//                        p.second.msg_vote_block, FormatMoney(p.second.coins_vote).c_str(), p.second.msg_vote.c_str(),
-//                        p.second.msg_request_block, FormatMoney(p.second.coins_request).c_str(), p.second.msg_request.c_str(),
-//                        FormatMoney(p.second.coins_fee).c_str(), p.second.msg_fee.c_str(), p.second.msg_comment.c_str());
 
                 sanitize_string(p.second.msg_comment);
-                fprintf(fp, "%10s   %9s %9s %9s   %5d     %7s %7d       %7s %7s %7d       %s",
-                        p.first.c_str(), FormatMoney(p.second.coinAmount).c_str(), FormatMoney(total_loot / CENT * CENT).c_str(), FormatMoney(tmp_weight / CENT * CENT).c_str(), int((tmp_weight / COIN / 10000) * 1000),
+                fprintf(fp, "%10s     %9s      %9s     %9s      %9s        %7s %7d       %7s %7s %7d       %s",
+                        p.first.c_str(), FormatMoney(p.second.coinAmount).c_str(), FormatMoney(total_loot / CENT * CENT).c_str(), FormatMoney(tmp_not_weight / CENT * CENT).c_str(), FormatMoney(tmp_weight / CENT * CENT).c_str(),
                         FormatMoney(p.second.coins_vote).c_str(), p.second.msg_vote_block,
                         FormatMoney(p.second.coins_request).c_str(), FormatMoney(p.second.coins_fee).c_str(), p.second.msg_request_block,
                         Displaycache_cleanstring);
@@ -5328,7 +5367,9 @@ GameState::PrintPlayerStats()
             fprintf(fp, "body {\n");
             fprintf(fp, "        color: white;\n");
             fprintf(fp, "        background-color: #111111;\n");
+            fprintf(fp, "     }\n");
             fprintf(fp, "</style>\n");
+            fprintf(fp, "<body link=\"#00FFFF\" vlink=\"#AAAAFF\" alink=\"#FFAAAA\">");
             fprintf(fp, "</head>\n");
             fprintf(fp, "<body>\n");
             fprintf(fp, "<pre>\n");
@@ -5338,8 +5379,16 @@ GameState::PrintPlayerStats()
 
             fprintf(fp, "\n\n Areas\n");
             fprintf(fp, " -----\n\n");
-            fprintf(fp, "                                  Flag     Player count at area           Distance to nearest player\n");
-            fprintf(fp, " Index  Position        Type      color    Yellows Reds Greens Blues                             Yellow     Red     Green     Blue\n\n");
+            if (fDebug)
+            {
+                fprintf(fp, "                                  Flag     Player count at area           Distance to nearest player\n");
+                fprintf(fp, " Index  Position        Type      color    Yellows Reds Greens Blues                             Yellow     Red     Green     Blue\n\n");
+            }
+            else
+            {
+                fprintf(fp, "                                  Flag     Player count at area\n");
+                fprintf(fp, " Index  Position        Type      color    Yellows Reds Greens Blues\n\n");
+            }
 
             for (int k = POIINDEX_CENTER; k < AI_NUM_POI; k++) // including center and bases
             {
@@ -5360,6 +5409,7 @@ GameState::PrintPlayerStats()
 
                 fprintf(fp, "%3d     %3d,%3d   %10s     %s   %4d  %4d  %4d  %4d\n", k, POI_pos_xa[k], POI_pos_ya[k], st.c_str(), scolor.c_str(), POI_num_foes[k][0], POI_num_foes[k][1], POI_num_foes[k][2], POI_num_foes[k][3]);
 
+                if (fDebug)
                 for (int cl = 0; cl < RPG_CLEVEL_MAX; cl++)
                 {
                     int ny = POI_nearest_foe_per_clevel[k][0][cl];
