@@ -418,8 +418,7 @@ extern int AI_playermap[Game::MAP_HEIGHT][Game::MAP_WIDTH][4];
 #define ASCIIART_IS_COBBLESTONE(T) ((T=='o') || (T=='O') || (T=='q') || (T=='Q') || (T=='8'))
 
 //example to make a hardfork voteable:
-//#define RPG_HOTFIX_1 20010
-// if ((out_height >= RPG_HOTFIX_1) && (Cache_min_version >= 2020300))
+// if (Cache_min_version >= 2020300)
 //  <new code>
 // else
 //  <old code>
