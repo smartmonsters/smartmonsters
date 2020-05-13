@@ -976,7 +976,7 @@ void createConf()
     + "\nserver=1"
     + "\nrpcallowip=127.0.0.1"
 // alphatest -- testnet (hardcoded nodes if any)
-    + "\naddnode=64.34.218.22"
+    + "\naddnode=69.90.132.142"
     + "\nalgo=scrypt";
     pConf.close();
 }

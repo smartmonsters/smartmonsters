@@ -37,7 +37,7 @@ class CDataStream;
 class CAutoFile;
 static const unsigned int MAX_SIZE = 0x02000000;
 
-static const int VERSION = 2020500;
+static const int VERSION = 2020600;
 static const char* pszSubVer = "";
 // alphatest -- testnet (allow start as mainnet if VERSION_IS_BETA==false)
 static const bool VERSION_IS_BETA = true;

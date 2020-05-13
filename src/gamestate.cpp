@@ -256,6 +256,13 @@ bool Move::Parse(const PlayerID &player, const std::string &json)
             return false;
         msg_comment = v.get_str();
     }
+//  if (dao_MinVersion >= 2020600) // not available because move is parsed before normal gamestate processing
+    if (ExtractField(obj, "msg_dlevel", v))
+    {
+        if (v.type() != str_type)
+            return false;
+        msg_dlevel = v.get_str();
+    }
 
     if (ExtractField(obj, "color", v))
     {
@@ -358,6 +365,11 @@ void Move::ApplyCommon(GameState &state) const
         pl.msg_fee = *msg_fee;
     if (msg_comment)
         pl.msg_comment = *msg_comment;
+    if (msg_dlevel)
+    {
+        pl.msg_dlevel = *msg_dlevel;
+        pl.msg_dlevel_block = state.nHeight;
+    }
 }
 
 std::string Move::AddressOperationPermission(const GameState &state) const
@@ -1512,6 +1524,7 @@ void CharacterState::MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int c
                         if (!AI_IS_SAFEZONE(coord.x, coord.y))
                             ai_chat = AI_LEARNRESULT_FAIL_ALREADY_HERE;
 
+                        // postpone this change,
                         // going to same area where you already are may be useful if carrying Book of Resting
                         if (Cache_min_version < 2020700)
                         {
@@ -3084,6 +3097,11 @@ json_spirit::Value PlayerState::ToJsonValue(int crown_index, bool dead /* = fals
     {
         obj.push_back(Pair("msg_comment", msg_comment));
     }
+    if (!msg_dlevel.empty())
+    {
+        obj.push_back(Pair("msg_dlevel", msg_dlevel));
+        obj.push_back(Pair("msg_dlevel_block", msg_dlevel_block));
+    }
 */
     if (!dead)
     {
@@ -3157,9 +3175,9 @@ GameState::GameState()
     // alphatest -- checkpoints
     dcpoint_height1 = 0;
     dcpoint_height2 = 0;
-    // alphatest -- reserved for tokens
-    gw_count = 0;
-    gw_first_free = 0;
+    // Dungeon levels
+    dao_DlevelMax = 0;
+    dao_DlevelActive = 0;
 }
 
 void
@@ -3738,6 +3756,7 @@ GameState::KillRangedAttacks (StepResult& step)
     BOOST_FOREACH(PAIRTYPE(const PlayerID, PlayerState) &p, players)
     {
         int tmp_color = p.second.color;
+//        int tmp_dlevel = p.second.dlevel;
         bool general_is_merchant = false;
 
         std::set<int> toErase;
@@ -4067,12 +4086,13 @@ GameState::Pass0_CacheDataForGame ()
                     Merchant_y[tmp_m] = y;
                     Merchant_last_sale[tmp_m] = ch.aux_last_sale_block;
 
-                    if (tmp_m == MERCH_INFO_DEVMODE)
-                    {
+//                  if (tmp_m == MERCH_INFO_DEVMODE)
+//                  {
                         // devmode
-                        int d1 = (int) ch.aux_storage_u1 - '0';
-                        Gamecache_devmode = ((fTestNet) && (d1 >= 0) && (d1 <= 9)) ? d1 : 0;
-                    }
+                        // disable dynamic checkpoints (not implemented in 'core) and devmode (untested)
+//                      int d1 = (int) ch.aux_storage_u1 - '0';
+//                      Gamecache_devmode = ((fTestNet) && (d1 >= 0) && (d1 <= 9)) ? d1 : 0;
+//                  }
                     // alphatest -- bounties and voting
                     if (tmp_m >= MERCH_NORMAL_FIRST)
                     {
@@ -4541,6 +4561,12 @@ GameState::Pass1_DAO()
                     else if (dao_BestCommentFinal == "All nodes must upgrade!")
                     {
                         dao_MinVersion += 100;
+                    }
+                    // Dungeon levels
+                    else if ((dao_MinVersion >= 2020600) && (dao_BestCommentFinal == "Spawn a new dungeon level!"))
+                    {
+                        if (dao_DlevelMax < NUM_DUNGEON_LEVELS - 1)
+                            dao_DlevelMax++;
                     }
                 }
             }
@@ -5616,14 +5642,26 @@ bool Game::PerformStep(const GameState &inState, const StepData &stepData, GameS
     // For all alive players perform path-finding
     BOOST_FOREACH(PAIRTYPE(const PlayerID, PlayerState) &p, outState.players)
     {
+        // Dungeon levels
+        int dl = -1;
+        if (p.second.msg_dlevel_block == outState.nHeight - 1)
+            dl = strtol(p.second.msg_dlevel.c_str(), NULL, 10);
+
         BOOST_FOREACH(PAIRTYPE(const int, CharacterState) &pc, p.second.characters)
         {
             CharacterState &ch = pc.second;
 
             pc.second.MoveTowardsWaypointX_Merchants(rnd0, p.second.color, outState.nHeight);
             if (!(ch.ai_state2 & AI_STATE2_STASIS))
+            {
                 pc.second.MoveTowardsWaypointX_Pathfinder(rnd0, p.second.color, outState.nHeight);
+                dl = -1;
+            }
         }
+
+        // Dungeon levels
+        if ((dl >= 0) && (dl <= outState.dao_DlevelMax) && (outState.dao_MinVersion >= 2020600))
+            p.second.dlevel = dl;
     }
 
 

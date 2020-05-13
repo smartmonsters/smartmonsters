@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = smartmonsters-qt
 macx:TARGET = "SmartMonsters-Qt"
-VERSION = 2.2.5
+VERSION = 2.2.6
 INCLUDEPATH += src src/json src/qt
 QT += network
 DEFINES += GUI QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
