@@ -33,6 +33,8 @@ bool fNoListen = false;
 bool fLogTimestamps = false;
 bool fAddressReuse = true;
 
+// Dungeon levels part 2
+int nDisplayDlevel = 0;
 
 
 

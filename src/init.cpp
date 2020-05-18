@@ -1227,6 +1227,10 @@ bool AppInit2(int argc, char* argv[])
     int64 nStart;
 
 
+    // Dungeon levels part 2
+    nDisplayDlevel = GetArg("-dlevel", 0);
+
+
     // alphatest -- calculate distances
     nStart = GetTimeMillis();
     Calculate_distance_to_POI();

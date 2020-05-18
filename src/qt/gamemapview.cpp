@@ -131,6 +131,11 @@ class GameMapCache
             coin = scene->addPixmap(grobjs->coin_sprite);
             coin->setOffset(x, y);
             coin->setZValue(0.1);
+
+            // Dungeon levels part 2
+            if (nDisplayDlevel != nCalculatedActiveDlevel)
+                coin->setOpacity(0.4);
+
             text = new QGraphicsTextItem(coin);
             text->setHtml(
                     "<center>"
@@ -179,6 +184,10 @@ class GameMapCache
             heart = scene->addPixmap(grobjs->heart_sprite);
             heart->setOffset(x, y);
             heart->setZValue(0.2);
+
+            // Dungeon levels part 2
+            if (nDisplayDlevel != nCalculatedActiveDlevel)
+                heart->setOpacity(0.4);
         }
 
         void Update()
@@ -284,6 +293,11 @@ class GameMapCache
             sprite = scene->addPixmap(grobjs->player_sprite[color][dir]);
             sprite->setOffset(x, y);
             sprite->setZValue(z_order);
+            // Dungeon levels part 2
+            if ( (color_a1_ == RPG_ICON_EMPTY) && (color_a2_ == RPG_ICON_EMPTY) && (color_a3_ == RPG_ICON_EMPTY) &&
+                 (color_d1_ == RPG_ICON_EMPTY) && (color_d2_ == RPG_ICON_EMPTY) && (color_d3_ == RPG_ICON_EMPTY) &&
+                 (color_ != 42) )
+                sprite->setOpacity(0.4);
 
 
             // alphatest -- better player sprites
@@ -329,6 +343,12 @@ class GameMapCache
 
             text = scene->addSimpleText("");
             text->setZValue(1e9);
+            // Dungeon levels part 2
+            if ( (color_a1_ == RPG_ICON_EMPTY) && (color_a2_ == RPG_ICON_EMPTY) && (color_a3_ == RPG_ICON_EMPTY) &&
+                 (color_d1_ == RPG_ICON_EMPTY) && (color_d2_ == RPG_ICON_EMPTY) && (color_d3_ == RPG_ICON_EMPTY) &&
+                 (color_ != 42) )
+                text->setOpacity(0.4);
+
             UpdPos();
             UpdText();
             UpdColor();
@@ -1772,6 +1792,9 @@ struct CharacterEntry
     QString name;
     unsigned char color;
 
+    // Dungeon levels part 2
+    unsigned char dlevel_for_players;
+
 // alphatest -- need to save actual color to display on what team they are
 //    int icon_a1;
 //    int icon_a2;
@@ -2395,6 +2418,9 @@ void GameMapView::updateGameMap(const GameState &gameState)
                 }
             }
 
+            // Dungeon levels part 2
+            entry.dlevel_for_players = pl.dlevel;
+
             // alphatest -- more player sprites
             entry.truecolor_for_mons = pl.color;
             if (characterState.ai_state2 & AI_STATE2_DEATH_POISON)
@@ -2539,6 +2565,11 @@ void GameMapView::updateGameMap(const GameState &gameState)
             else if (data.second.truecolor_for_mons == 3) color_defense1 = 345;
             else  color_defense1 = 515; // error
         }
+
+        // Dungeon levels part 2
+        if (!(NPCROLE_IS_MERCHANT(tmp_npc_role)))
+        if (nDisplayDlevel != data.second.dlevel_for_players)
+            color_attack1 = color_attack2 = color_attack3 = color_defense1 = color_defense2 = color_defense3 = RPG_ICON_EMPTY;
 
         gameMapCache->AddPlayer(playerName, x, y, 1 + offs, data.second.color, color_attack1, color_attack2, color_attack3, color_defense1, color_defense2, color_defense3, characterState.dir, characterState.loot.nAmount);
     }

@@ -614,7 +614,7 @@ struct GameState
     uint256 dcpoint_hash2;
     // Dungeon levels
     int dao_DlevelMax;
-    int dao_DlevelActive;
+    int dao_IntervalMonsterApocalypse;
     // reserve
     std::string gs_reserve_s1;
     std::string gs_reserve_s2;
@@ -665,7 +665,7 @@ struct GameState
       READWRITE(dcpoint_hash2);
       // Dungeon levels
       READWRITE(dao_DlevelMax);
-      READWRITE(dao_DlevelActive);
+      READWRITE(dao_IntervalMonsterApocalypse);
       // reserve
       READWRITE(gs_reserve_s1);
       READWRITE(gs_reserve_s2);
@@ -919,19 +919,28 @@ extern int Gamecache_dyncheckpointheight1;
 extern int Gamecache_dyncheckpointheight2;
 extern uint256 Gamecache_dyncheckpointhash1;
 extern uint256 Gamecache_dyncheckpointhash2;
-#define RPG_INTERVAL_MONSTERAPOCALYPSE (Gamecache_devmode == 8 ? 200 : 2000)
+
+
+// Dungeon levels part 2
+//#define RPG_INTERVAL_MONSTERAPOCALYPSE (Gamecache_devmode == 8 ? 200 : 2000)
+#define RPG_INTERVAL_MONSTERAPOCALYPSE (Cache_gameround_duration)
 #define RPG_INTERVAL_ROGER_100_PERCENT (RPG_INTERVAL_MONSTERAPOCALYPSE / 2)
 #define RPG_INTERVAL_TILL_AUTOMODE (RPG_INTERVAL_MONSTERAPOCALYPSE / 2)
-#define RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(H) (H % RPG_INTERVAL_MONSTERAPOCALYPSE)
+// RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE is used only in MoveTowardsWaypoint..., meaning is always "blocks since start of timeslot"
+//#define RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(H) (H % RPG_INTERVAL_MONSTERAPOCALYPSE)
+#define RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(H) (H % Cache_timeslot_duration)
 #define RPG_BLOCKS_TILL_MONSTERAPOCALYPSE(H) (RPG_INTERVAL_MONSTERAPOCALYPSE - (H % RPG_INTERVAL_MONSTERAPOCALYPSE))
 #define RPG_COMMAND_CHAMPION_REQUIRED_SP(H) ((RPG_INTERVAL_MONSTERAPOCALYPSE * 10) / (RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(H) + 1))
 #define RPG_INTERVAL_BOUNTYCYCLE (Gamecache_devmode == 8 ? 1000 : 10000)
+extern int Cache_timeslot_duration;
+extern int Cache_gameround_duration;
+extern int nCalculatedActiveDlevel;
+#define NUM_DUNGEON_LEVELS 10
+
 
 extern int64 Cache_adjusted_ration_price;
 //extern int64 Cache_adjusted_population_limit;
 extern int Cache_min_version;
-
-#define NUM_DUNGEON_LEVELS 10
 
 
 #endif

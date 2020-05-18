@@ -211,6 +211,9 @@ extern bool fNoListen;
 extern bool fLogTimestamps;
 extern bool fAddressReuse;
 
+// Dungeon levels part 2
+extern int nDisplayDlevel;
+
 void RandAddSeed();
 void RandAddSeedPerfmon();
 int OutputDebugStringF(const char* pszFormat, ...);

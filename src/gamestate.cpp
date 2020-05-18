@@ -786,6 +786,16 @@ int Cache_min_version;
 
 bool Cache_warn_upgrade;
 
+// Dungeon levels part 2
+int Cache_gameround_duration = 0;
+int Cache_gameround_blockcount = 0;
+int Cache_gameround_start = 0;
+int Cache_timeslot_duration = 0;
+int Cache_timeslot_blockcount = 0;
+int Cache_timeslot_start = 0;
+int nCalculatedActiveDlevel = 0;
+
+
 // alphatest -- extended version of MoveTowardsWaypoint (part 1)
 void CharacterState::MoveTowardsWaypointX_Merchants(RandomGenerator &rnd, int color_of_moving_char, int out_height)
 {
@@ -3171,13 +3181,16 @@ GameState::GameState()
     dao_BestRequestFinal = 0;
     dao_BountyPreviousWeek = 0;
     dao_AdjustUpkeep = 0;
+    dao_AdjustPopulationLimit = 0;
     dao_MinVersion = 2020500; // init value for block height 0, don't change
     // alphatest -- checkpoints
     dcpoint_height1 = 0;
     dcpoint_height2 = 0;
+    dcpoint_hash1 = 0;
+    dcpoint_hash2 = 0;
     // Dungeon levels
     dao_DlevelMax = 0;
-    dao_DlevelActive = 0;
+    dao_IntervalMonsterApocalypse = 0;
 }
 
 void
@@ -4119,6 +4132,8 @@ GameState::Pass0_CacheDataForGame ()
 
             // cache combatants and some attacks
             if (!(NPCROLE_IS_MERCHANT(tmp_m)))
+            if ( // (Cache_min_version < 2020700) ||
+                    (p.second.dlevel == nCalculatedActiveDlevel) ) // Dungeon levels part 2
             {
                 if ((tmp_color >= 0) && (tmp_color < NUM_TEAM_COLORS))
                 {
@@ -4568,6 +4583,23 @@ GameState::Pass1_DAO()
                         if (dao_DlevelMax < NUM_DUNGEON_LEVELS - 1)
                             dao_DlevelMax++;
                     }
+                    // Dungeon levels part 2
+                    else if (dao_BestCommentFinal == "Erase a dungeon level!")
+                    {
+                        if (dao_DlevelMax > 0)
+                            dao_DlevelMax--;
+                    }
+                    else if (dao_BestCommentFinal == "Increase the number of blocks per game round!")
+                    {
+                        if (nHeight % dao_IntervalMonsterApocalypse == 0)
+                            dao_IntervalMonsterApocalypse += 1000;
+                    }
+                    else if (dao_BestCommentFinal == "Reduce the number of blocks per game round!")
+                    {
+                        if (nHeight % dao_IntervalMonsterApocalypse == 0)
+                        if (dao_IntervalMonsterApocalypse >= 2000)
+                            dao_IntervalMonsterApocalypse -= 1000;
+                    }
                 }
             }
 
@@ -4651,6 +4683,8 @@ GameState::Pass2_Melee()
 
             // apply melee attacks here (always)
             if (!(ch.ai_state2 & AI_STATE2_STASIS))
+            if ( // (Cache_min_version < 2020700) ||
+                    (p.second.dlevel == nCalculatedActiveDlevel) ) // Dungeon levels part 2
             {
                 int tmp_m = ch.ai_npc_role;
                 int x = ch.coord.x;
@@ -4740,6 +4774,8 @@ GameState::Pass3_PaymentAndHitscan()
             // hitscan for ranged attacks
             if (!(NPCROLE_IS_MERCHANT(tmp_m)))
             if (!(ch.ai_state2 & AI_STATE2_STASIS))
+            if ( // (Cache_min_version < 2020700) ||
+                    (p.second.dlevel == nCalculatedActiveDlevel) ) // Dungeon levels part 2
             {
                 int x = ch.coord.x;
                 int y = ch.coord.y;
@@ -5207,6 +5243,23 @@ GameState::PrintPlayerStats()
 
             fprintf(fp, "Adjusted price per ration:  %10s\n\n", FormatMoney(Cache_adjusted_ration_price).c_str());
 
+
+            // Dungeon levels part 2
+            fprintf(fp, "Interval M.Apocalypse (old):        %10d\n", RPG_INTERVAL_MONSTERAPOCALYPSE);
+            fprintf(fp, "Interval M.Apocalypse (new):        %10d\n", dao_IntervalMonsterApocalypse);
+            fprintf(fp, "Interval M.Apocalypse (cached):     %10d\n", Cache_gameround_duration);
+            fprintf(fp, "Blocks since M.A. (old):            %10d\n", RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(nHeight));
+            fprintf(fp, "Blocks since M.A. (cached):         %10d\n", Cache_gameround_blockcount);
+            fprintf(fp, "Current game round start (cached):  %10d\n\n", Cache_gameround_start);
+
+            fprintf(fp, "Time slot psr dlevel:       %10d\n", Cache_timeslot_duration);
+            fprintf(fp, "Deepest dungeon level:      %10d\n", dao_DlevelMax);
+            fprintf(fp, "active dlevel, calculated:  %10d\n", nCalculatedActiveDlevel);
+            fprintf(fp, "  blocks since t-s- start:  %10d\n", Cache_timeslot_blockcount);
+            fprintf(fp, "  active since block:       %10d\n\n", Cache_timeslot_start);
+            fprintf(fp, "  active til block:         %10d\n\n", Cache_timeslot_start + Cache_timeslot_duration - 1);
+
+
             fprintf(fp, "Client version (current):   %10d\n", VERSION);
             fprintf(fp, "            (min enforced): %10d\n", dao_MinVersion);
 
@@ -5569,6 +5622,23 @@ bool Game::PerformStep(const GameState &inState, const StepData &stepData, GameS
     stepResult = StepResult();
 
 
+    // Dungeon levels part 2
+    {
+        if (outState.dao_IntervalMonsterApocalypse < 2000)
+            outState.dao_IntervalMonsterApocalypse = 2000;
+        // current game round
+        Cache_gameround_duration = outState.dao_IntervalMonsterApocalypse;
+        Cache_gameround_blockcount = outState.nHeight % Cache_gameround_duration;
+        Cache_gameround_start = outState.nHeight - Cache_gameround_blockcount;
+        // current time slot
+        Cache_timeslot_duration = Cache_gameround_duration / (outState.dao_DlevelMax + 1);
+        Cache_timeslot_blockcount = outState.nHeight % Cache_timeslot_duration;
+
+        nCalculatedActiveDlevel = Cache_gameround_blockcount / Cache_timeslot_duration;
+
+        Cache_timeslot_start = Cache_gameround_start + (Cache_timeslot_duration * nCalculatedActiveDlevel);
+    }
+
     // alphatest -- cache some data for the game
     int64 ai_nStart = GetTimeMillis();
     AI_rng_seed_hashblock = inState.hashBlock;
@@ -5642,6 +5712,10 @@ bool Game::PerformStep(const GameState &inState, const StepData &stepData, GameS
     // For all alive players perform path-finding
     BOOST_FOREACH(PAIRTYPE(const PlayerID, PlayerState) &p, outState.players)
     {
+        // Dungeon levels part 2
+        if (p.second.dlevel != nCalculatedActiveDlevel)
+            continue;
+
         // Dungeon levels
         int dl = -1;
         if (p.second.msg_dlevel_block == outState.nHeight - 1)
