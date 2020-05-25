@@ -560,7 +560,7 @@ int Gamecache_dyncheckpointheight2;
 uint256 Gamecache_dyncheckpointhash1;
 uint256 Gamecache_dyncheckpointhash2;
 
-int64 LastDumpStatsTime; // checking IsInitialBlockDownload is not enough (e.g. if regenerating gamestate)
+int64 LastDumpStatsTime = 0; // checking IsInitialBlockDownload is not enough (e.g. if regenerating gamestate)
 
 
 bool AI_IS_SAFEZONE(int X, int Y)
@@ -4997,14 +4997,16 @@ static void sanitize_string(const std::string& s)
 void
 GameState::PrintPlayerStats()
 {
-    if (((!IsInitialBlockDownload()) && (GetTime() > LastDumpStatsTime + 5)))
+    if ( (!IsInitialBlockDownload()) &&
+          ((GetTime() > LastDumpStatsTime + 5) || (LastDumpStatsTime == 0)) )
     {
         LastDumpStatsTime = GetTime();
 
         FILE *fp;
 
         // links to online manual
-        std::string sl_main = "<a href=\"https://smartmonsters.github.io/Manual";
+        std::string sl_main = fDebug ? "<a href=\"smartmonsters.github.io/Manual" :
+                                       "<a href=\"https://smartmonsters.github.io/Manual";
 
         fp = fopen("stats_characters.html", "w");
         if (fp != NULL)
@@ -5034,8 +5036,8 @@ GameState::PrintPlayerStats()
             std::string sl_clevel = sl_main + "2.html#Clevels\">Level</a>";
             std::string sl_ration = sl_main + "2.html#Upkeep\">Rations</a>";
             std::string sl_items = sl_main + "2.html#Items\">Armor</a>";
-            std::string sl_amulets = sl_main + "2.html#Amulets\">Amulet</a>";
-            std::string sl_rings = sl_main + "2.html#Rings\">Ring</a>";
+            std::string sl_amulets = sl_main + "2.html#Items\">Amulet</a>";
+            std::string sl_rings = sl_main + "2.html#Items\">Ring</a>";
             std::string sl_spells = sl_main + "2.html#Spells\">Package1</a>";
             std::string sl_drinks = sl_main + "2.html#Upkeep\">Package2</a>";
 
@@ -5188,15 +5190,16 @@ GameState::PrintPlayerStats()
 
             // links to online manual
             std::string sl_balancing = sl_main + "2.html#Balancing\">Special Rules</a>";
-            std::string sl_color = sl_main + "5.html#Color\">Color Teamss</a>";
-            std::string sl_champion = sl_main + "2.html#Champion\">Champions</a>";
+            std::string sl_color = sl_main + "5.html#Synonyms\">Color</a>";
+            std::string sl_champion = sl_main + "2.html#Spells\">Champions</a>";
 
             fprintf(fp, "\n Block %7d, %s\n", nHeight, fTestNet ? "testnet" : "mainnet");
             fprintf(fp, " ----------------------\n");
 
-            fprintf(fp, "\n\n %s:\n", sl_color.c_str());
-            fprintf(fp, " ------------\n\n");
-            fprintf(fp, "          Color          Total Score                %s     Coins\n\n", sl_champion.c_str());
+            fprintf(fp, "\n\n %s balance:\n", sl_color.c_str());
+            fprintf(fp, " --------------\n\n");
+            fprintf(fp, "                         Players+Monsters\n", sl_champion.c_str());
+            fprintf(fp, "          Color        est. combat strength          %s     Coins\n\n", sl_champion.c_str());
             for (int ic = 0; ic < NUM_TEAM_COLORS; ic++)
             {
                 std::string s1 = "";
@@ -5209,8 +5212,8 @@ GameState::PrintPlayerStats()
                     fprintf(fp, "%10d %6s   %15"PRI64d" %10s\n", ic, Rpg_TeamColorDesc[ic].c_str(), Rpg_TeamBalanceCount[ic], s1.c_str());
             }
 
-            fprintf(fp, "\n\n %s\n", sl_balancing.c_str());
-            fprintf(fp, " ------------\n\n");
+            fprintf(fp, "\n\n\n %s\n", sl_balancing.c_str());
+            fprintf(fp, " -------------\n\n");
 
             if (Rpg_hearts_spawn)
                 fprintf(fp, "Hearts spawn at normal rate.\n(because player count is less than minimum target for current block height)\n\n");
@@ -5229,7 +5232,7 @@ GameState::PrintPlayerStats()
             else if (Rpg_monsters_weaker_than_players)
             {
                 fprintf(fp, "Strongest color (%ss) will not be resurrected upon death, but everyone else.\n", Rpg_TeamColorDesc[Rpg_StrongestTeam].c_str());
-                fprintf(fp, "(monster count and estimated monster combat strength\nis is at least 1/2 of the player characters)\n\n");
+                fprintf(fp, "(monster count and estimated monster combat strength\nis at least 1/2 of the player characters)\n\n");
             }
             else
             {
@@ -5238,43 +5241,54 @@ GameState::PrintPlayerStats()
             }
 
 
-            fprintf(fp, "\n\n Global Stats\n");
-            fprintf(fp, " ------------\n\n");
-            fprintf(fp, "Total population (current): %10d\n", Rpg_TotalPopulationCount);
-            fprintf(fp, "            minimum target: %10d\n", RGP_POPULATION_TARGET(nHeight));
-            fprintf(fp, "         voted upper limit: %10d\n\n", Cache_adjusted_population_limit);
+            fprintf(fp, "\n\n Game world population count\n");
+            fprintf(fp, " ---------------------------\n\n");
 
-            fprintf(fp, "Players on vacation:        %10d\n\n", Rpg_InactivePopulationCount);
+            fprintf(fp, "Total population (global):          %10d\n", Rpg_TotalPopulationCount_global);
+            fprintf(fp, "Total population (active dlevel):   %10d\n", Rpg_TotalPopulationCount);
+            fprintf(fp, "   minimum target (active dlevel):  %10d\n\n", RGP_POPULATION_TARGET(nHeight));
 
-            fprintf(fp, "Rations bought by players:  %10d during last %d blocks\n", Rpg_PopulationCount[0], RPG_INTERVAL_MONSTERAPOCALYPSE);
-            fprintf(fp, "              by monsters:  %10d during last %d blocks\n", Rpg_MonsterCount, RPG_INTERVAL_MONSTERAPOCALYPSE);
-            fprintf(fp, "Player total score:         %10"PRI64d"\n", Rpg_WeightedPopulationCount[0]);
-            fprintf(fp, "Monster total score:        %10"PRI64d"\n\n", Rpg_WeightedMonsterCount);
+            fprintf(fp, "Players on vacation (global):       %10d\n", Rpg_InactivePopulationCount);
+            fprintf(fp, "  voted upper limit (global):       %10d\n\n", Cache_adjusted_population_limit);
 
-            fprintf(fp, "Devmode:                    %10d\n", Gamecache_devmode);
-            fprintf(fp, "Game round in blocks:       %10d\n\n", RPG_INTERVAL_MONSTERAPOCALYPSE);
+            fprintf(fp, "Player count (active dlevel):       %10d (players who bought a ration during last %d blocks)\n", Rpg_PopulationCount[0], RPG_INTERVAL_MONSTERAPOCALYPSE);
+            fprintf(fp, "Monster count (active dlevel):      %10d (monsters who bought a ration during last %d blocks)\n", Rpg_MonsterCount, RPG_INTERVAL_MONSTERAPOCALYPSE);
+            fprintf(fp, "Est. combat strength (all players): %10"PRI64d"\n", Rpg_WeightedPopulationCount[0]);
+            fprintf(fp, "                    (all monsters): %10"PRI64d"\n\n", Rpg_WeightedMonsterCount);
 
-            fprintf(fp, "Adjusted price per ration:  %10s\n\n", FormatMoney(Cache_adjusted_ration_price).c_str());
+            fprintf(fp, "Upkeep (price per ration in coins): %10s\n\n", FormatMoney(Cache_adjusted_ration_price).c_str());
 
 
             // Dungeon levels part 2
-            fprintf(fp, "Interval M.Apocalypse (old):        %10d\n", RPG_INTERVAL_MONSTERAPOCALYPSE);
-            fprintf(fp, "Interval M.Apocalypse (new):        %10d\n", dao_IntervalMonsterApocalypse);
-            fprintf(fp, "Interval M.Apocalypse (cached):     %10d\n", Cache_gameround_duration);
-            fprintf(fp, "Blocks since M.A. (old):            %10d\n", RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(nHeight));
-            fprintf(fp, "Blocks since M.A. (cached):         %10d\n", Cache_gameround_blockcount);
-            fprintf(fp, "Current game round start (cached):  %10d\n\n", Cache_gameround_start);
+            fprintf(fp, "\n\n Time between battles (Game round)\n");
+            fprintf(fp, " ---------------------------------\n\n");
+            fprintf(fp, "Game round in blocks:               %10d\n", RPG_INTERVAL_MONSTERAPOCALYPSE);
+            fprintf(fp, "Game round in blocks (voted):       %10d\n", dao_IntervalMonsterApocalypse);
+            fprintf(fp, "Game round in blocks (cached):      %10d\n\n", Cache_gameround_duration);
 
-            fprintf(fp, "Time slot psr dlevel:       %10d\n", Cache_timeslot_duration);
-            fprintf(fp, "Deepest dungeon level:      %10d\n", dao_DlevelMax);
-            fprintf(fp, "active dlevel, calculated:  %10d\n", nCalculatedActiveDlevel);
-            fprintf(fp, "  blocks since t-s- start:  %10d\n", Cache_timeslot_blockcount);
-            fprintf(fp, "  active since block:       %10d\n\n", Cache_timeslot_start);
-            fprintf(fp, "  active til block:         %10d\n\n", Cache_timeslot_start + Cache_timeslot_duration - 1);
+            fprintf(fp, "Current game round start (cached):  %10d\n", Cache_gameround_start);
+            fprintf(fp, "  blocks since start (old):         %10d\n", RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(nHeight));
+            fprintf(fp, "  blocks since start (cached):      %10d\n\n", Cache_gameround_blockcount);
+
+            fprintf(fp, "\n\n Dungeon Levels\n");
+            fprintf(fp, " --------------\n\n");
+            fprintf(fp, "Deepest dungeon level (voted):      %10d\n", dao_DlevelMax);
+            fprintf(fp, "Active dlevel (calculated):         %10d\n\n", nCalculatedActiveDlevel);
+
+            fprintf(fp, "Time slot per active dlevel:        %10d\n", Cache_timeslot_duration);
+            fprintf(fp, "  blocks since timeslot start:      %10d\n", Cache_timeslot_blockcount);
+            fprintf(fp, "  active since block:               %10d\n", Cache_timeslot_start);
+            fprintf(fp, "  active til block:                 %10d\n\n", Cache_timeslot_start + Cache_timeslot_duration - 1);
 
 
-            fprintf(fp, "Client version (current):   %10d\n", VERSION);
-            fprintf(fp, "            (min enforced): %10d\n", dao_MinVersion);
+            fprintf(fp, "\n\n Game version\n");
+            fprintf(fp, " ------------\n\n");
+
+            fprintf(fp, "Client version (current):           %10d\n", VERSION);
+            fprintf(fp, "Min. client version (voted):        %10d\n\n", dao_MinVersion);
+
+            fprintf(fp, "Testnet devmode:                    %10d\n\n", Gamecache_devmode);
+
 
             if (fTestNet)
             {
@@ -5526,6 +5540,57 @@ GameState::PrintPlayerStats()
                     if (ny + nr + ng + nb > 0)
                         fprintf(fp, "                                                                          level %d or higher:     %4d      %4d      %4d      %4d\n", cl+1, ny, nr, ng, nb);
                 }
+            }
+
+            // Ascii-art view of map center
+            if (fDebug)
+            for (int y = 220; y < 280; y++)
+            {
+              for (int x = 150; x < 350; x++)
+              {
+                if (IsWalkable(x, y))
+                {
+                    if (Distance_To_POI[POIINDEX_CENTER][y][x] < 0)
+                        fprintf(fp, "<font color=grey>#</font>");
+                    else if (AI_playermap[y][x][0] > 1)
+                        fprintf(fp, "<font color=yellow>Y</font>");
+                    else if (AI_playermap[y][x][1] > 1)
+                        fprintf(fp, "<font color=red>R</font>");
+                    else if (AI_playermap[y][x][2] > 1)
+                        fprintf(fp, "<font color=green>G</font>");
+                    else if (AI_playermap[y][x][3] > 1)
+                        fprintf(fp, "<font color=blue>B</font>");
+                    else if (AI_playermap[y][x][0])
+                        fprintf(fp, "<font color=yellow>y</font>");
+                    else if (AI_playermap[y][x][1])
+                        fprintf(fp, "<font color=red>r</font>");
+                    else if (AI_playermap[y][x][2])
+                        fprintf(fp, "<font color=green>g</font>");
+                    else if (AI_playermap[y][x][3])
+                        fprintf(fp, "<font color=blue>b</font>");
+                    else if (AI_merchantbasemap[y][x] == AI_MBASEMAP_MERCH_NORMAL)
+                        fprintf(fp, "<font color=purple>M</font>");
+                    else if (AI_merchantbasemap[y][x] == AI_MBASEMAP_MERCH_TP)
+                        fprintf(fp, "<font color=purple>m</font>");
+                    else if (AI_merchantbasemap[y][x] == AI_MBASEMAP_TELEPORT)
+                        fprintf(fp, "<font color=bright blue>T</font>");
+                    else if (AI_merchantbasemap[y][x]) // tp exit or flag
+                        fprintf(fp, "?");
+                    else if (AI_heartmap[y][x])
+                        fprintf(fp, "<font color=purple>h</font>");
+                    else if (AI_coinmap[y][x])
+                        fprintf(fp, "<font color=gold>o</font>");
+                    else if ( (AI_IS_SAFEZONE(x, y)) && (!AI_ADJACENT_IS_SAFEZONE(x, y)) )
+                        fprintf(fp, ".");
+                    else
+                        fprintf(fp, " ");
+                }
+                else
+                {
+                    fprintf(fp, "#");
+                }
+              }
+              fprintf(fp, "\n");
             }
 
             fprintf(fp, "</pre>\n");

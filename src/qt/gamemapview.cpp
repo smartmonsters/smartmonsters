@@ -294,14 +294,12 @@ class GameMapCache
             sprite->setOffset(x, y);
             sprite->setZValue(z_order);
             // Dungeon levels part 2
-            if ( (color_a1_ == RPG_ICON_EMPTY) && (color_a2_ == RPG_ICON_EMPTY) && (color_a3_ == RPG_ICON_EMPTY) &&
-                 (color_d1_ == RPG_ICON_EMPTY) && (color_d2_ == RPG_ICON_EMPTY) && (color_d3_ == RPG_ICON_EMPTY) &&
-                 (color_ != 42) )
+            if (color_a1_ == 0)
                 sprite->setOpacity(0.4);
-
+            color_a1 = color_a1_ ? color_a1_ : RPG_ICON_EMPTY;
 
             // alphatest -- better player sprites
-            color_a1 = color_a1_;
+//            color_a1 = color_a1_;
             color_a2 = color_a2_;
             color_a3 = color_a3_;
             color_d1 = color_d1_;
@@ -344,10 +342,8 @@ class GameMapCache
             text = scene->addSimpleText("");
             text->setZValue(1e9);
             // Dungeon levels part 2
-            if ( (color_a1_ == RPG_ICON_EMPTY) && (color_a2_ == RPG_ICON_EMPTY) && (color_a3_ == RPG_ICON_EMPTY) &&
-                 (color_d1_ == RPG_ICON_EMPTY) && (color_d2_ == RPG_ICON_EMPTY) && (color_d3_ == RPG_ICON_EMPTY) &&
-                 (color_ != 42) )
-                text->setOpacity(0.4);
+            if (color_a1_ == 0)
+                sprite->setOpacity(0.4);
 
             UpdPos();
             UpdText();
@@ -2569,7 +2565,11 @@ void GameMapView::updateGameMap(const GameState &gameState)
         // Dungeon levels part 2
         if (!(NPCROLE_IS_MERCHANT(tmp_npc_role)))
         if (nDisplayDlevel != data.second.dlevel_for_players)
-            color_attack1 = color_attack2 = color_attack3 = color_defense1 = color_defense2 = color_defense3 = RPG_ICON_EMPTY;
+        {
+            color_attack1 = 0;
+            color_attack2 = color_attack3 = color_defense1 = color_defense2 = color_defense3 = RPG_ICON_EMPTY;
+        }
+
 
         gameMapCache->AddPlayer(playerName, x, y, 1 + offs, data.second.color, color_attack1, color_attack2, color_attack3, color_defense1, color_defense2, color_defense3, characterState.dir, characterState.loot.nAmount);
     }
