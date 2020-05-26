@@ -820,19 +820,71 @@ void CharacterState::MoveTowardsWaypointX_Merchants(RandomGenerator &rnd, int co
         rpg_rations = 1;
     }
 
-    // after going into stasis, chars must pay for 1 more ration
-    if ( (!(NPCROLE_IS_MERCHANT(ai_npc_role))) &&
-         ((out_height - aux_spawn_block) % RPG_INTERVAL_MONSTERAPOCALYPSE == 0) )
+
+    // Dungeon levels part 3 -- measure how long characters are active, always buy 1 ration per game round.
+    // After going into stasis, chars must pay for 1 more ration
+    bool need_ration = false;
+    bool pay_upkeep = false;
+    bool set_noupkeep_flag = false;
+    bool clear_noupkeep_flag = false;
+    if (Cache_min_version < 2020700)
     {
+        if ((out_height - aux_spawn_block) % RPG_INTERVAL_MONSTERAPOCALYPSE == 0)
+            need_ration = true;
+
         if ((ai_state2 & AI_STATE2_STASIS) && (aux_stasis_block < out_height - RPG_INTERVAL_MONSTERAPOCALYPSE) &&
             (Rpg_TotalPopulationCount_global <= Cache_adjusted_population_limit))
         {
-            ai_state3 |= AI_STATE3_STASIS_NOUPKEEP;
+            set_noupkeep_flag = true;
         }
         else
         {
-            ai_state3 &= ~(AI_STATE3_STASIS_NOUPKEEP); // clear these flags
+            clear_noupkeep_flag = true;
+            pay_upkeep = true;
+        }
+    }
+    else
+    {
+        if (ai_reserve64_1 == 0)
+            ai_reserve64_1 = out_height - aux_spawn_block; // initialize with correct age
+        else
+            ai_reserve64_1++;
+        if (ai_reserve64_1 % Cache_timeslot_duration == 0)
+            need_ration = true;
 
+        if (ai_state2 & AI_STATE2_STASIS)
+        {
+            if (Rpg_TotalPopulationCount_global > Cache_adjusted_population_limit)
+            {
+                pay_upkeep = true;
+                clear_noupkeep_flag = true;
+            }
+            else if (!(ai_state3 & AI_STATE3_STASIS_NOUPKEEP))
+            {
+                pay_upkeep = true;
+                set_noupkeep_flag = true;
+            }
+        }
+        else
+        {
+            pay_upkeep = true;
+            clear_noupkeep_flag = true;
+        }
+    }
+
+    if ( (!(NPCROLE_IS_MERCHANT(ai_npc_role))) &&
+         (need_ration) )
+    {
+        if (set_noupkeep_flag)
+        {
+            ai_state3 |= AI_STATE3_STASIS_NOUPKEEP;
+        }
+        if (clear_noupkeep_flag)
+        {
+            ai_state3 &= ~(AI_STATE3_STASIS_NOUPKEEP); // clear these flags
+        }
+        if (pay_upkeep)
+        {
             rpg_rations--;
             int tl = RPG_CLEVEL_FROM_LOOT(loot.nAmount);
             if (tl > 5) tl = 5;
@@ -854,6 +906,7 @@ void CharacterState::MoveTowardsWaypointX_Merchants(RandomGenerator &rnd, int co
             }
         }
     }
+
 
     if (ai_state2 & AI_STATE2_STASIS)
     {
@@ -1542,7 +1595,7 @@ void CharacterState::MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int c
 
                         // postpone this change,
                         // going to same area where you already are may be useful if carrying Book of Resting
-                        if (Cache_min_version < 2020700)
+                        if (Cache_min_version < 2020800)
                         {
                             ai_queued_harvest_poi = k_nearby;
                             ai_order_time = out_height;
@@ -4060,6 +4113,9 @@ GameState::Pass0_CacheDataForGame ()
     Cache_NPC_bounty_loot_available = 0;
 
     Cache_adjusted_ration_price = RPG_ADJUSTED_RATION_PRICE(dao_AdjustUpkeep);
+    // Dungeon levels part 3 -- price is proportional to time slot duration because players need 1 ration per time slot
+    if (Cache_min_version >= 2020700)
+        Cache_adjusted_ration_price = (Cache_adjusted_ration_price * Cache_timeslot_duration) / 2000;
     Cache_adjusted_population_limit = RGP_POPULATION_LIMIT(dao_AdjustPopulationLimit);
     Cache_min_version = dao_MinVersion;
 
@@ -4083,7 +4139,7 @@ GameState::Pass0_CacheDataForGame ()
 
             // get NPC statistic (including normal PCs)
             Rpg_TotalPopulationCount_global++;
-            if ( (Cache_min_version < 2020700) ||
+            if ( // (Cache_min_version < 2020700) ||  // Dungeon levels part 3
                  (p.second.dlevel == nCalculatedActiveDlevel) )
             {
                 Rpg_TotalPopulationCount++;
@@ -4133,7 +4189,7 @@ GameState::Pass0_CacheDataForGame ()
             {
                 if (ch.loot.nAmount > Rpg_ChampionCoins[tmp_color])
                 if (ch.ai_queued_harvest_poi == 0) // not already serving a player
-                if ( (Cache_min_version < 2020700) ||
+                if ( // (Cache_min_version < 2020700) ||  // Dungeon levels part 3
                      (p.second.dlevel == nCalculatedActiveDlevel) )
                 {
                     Rpg_ChampionName[tmp_color] = p.first;
@@ -4481,10 +4537,27 @@ GameState::Pass1_DAO()
                         if (ch.rpg_rations == 0) // make sure rations can't be farmed through voting (takes care of stasis)
                         if (nHeight - ch.aux_spawn_block > RPG_INTERVAL_BOUNTYCYCLE)
                         {
-                            if (i == 0)
-                                ch.rpg_rations += 3;
+                            // Dungeon levels part 3 -- with longer gameround duration, less rations are needed
+                            if (Cache_min_version < 2020700)
+                            {
+                                if (i == 0)
+                                    ch.rpg_rations += 3;
+                                else
+                                    ch.rpg_rations += 2;
+                            }
                             else
-                                ch.rpg_rations += 2;
+                            {
+                                if (Cache_gameround_duration > 5000)
+                                    ch.rpg_rations += (i == 0) ? 1 : 0;
+                                if (Cache_gameround_duration > 4000)
+                                    ch.rpg_rations += 1;
+                                if (Cache_gameround_duration > 3000)
+                                    ch.rpg_rations += (i == 0) ? 2 : 1;
+                                if (Cache_gameround_duration > 2000)
+                                    ch.rpg_rations += 2;
+                                else
+                                    ch.rpg_rations += (i == 0) ? 3 : 2;
+                            }
                         }
                     }
                 }
