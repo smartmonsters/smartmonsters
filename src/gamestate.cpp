@@ -391,6 +391,10 @@ Move::ApplySpawn (GameState &state, RandomGenerator &rnd) const
   if (pl.next_character_index == 0)
   {
     pl.color = color;
+
+    // Dungeon levels part 3
+    pl.dlevel = nCalculatedActiveDlevel;
+
     assert (pl.coinAmount == -1 && coinAmount >= 0);
     pl.coinAmount = coinAmount;
 
@@ -3683,8 +3687,13 @@ GameState::HandleKilledLoot (const PlayerID& pId, int chInd,
   if (hasTax)
     {
       const int64 nTax = nAmount / 25;
-      step.nTaxAmount += nTax;
-      nAmount -= nTax;
+
+      // Abolish death tax
+      if (Cache_min_version < 2020700)
+      {
+          step.nTaxAmount += nTax;
+          nAmount -= nTax;
+      }
     }
 
   /* Return early if nothing is to drop.  */
@@ -3951,7 +3960,8 @@ GameState::KillRangedAttacks (StepResult& step)
                         ch.ai_npc_role = my_role;
 
                         if (ch.ai_slot_amulet == AI_ITEM_REGEN)
-                            ch.ai_regen_timer = RPG_INTERVAL_MONSTERAPOCALYPSE;
+                            // Dungeon levels part 3
+                            ch.ai_regen_timer = (Cache_min_version < 2020700) ? RPG_INTERVAL_MONSTERAPOCALYPSE : Cache_timeslot_duration;
                         else
                             ch.ai_regen_timer = -1;
 
@@ -4549,11 +4559,11 @@ GameState::Pass1_DAO()
                             {
                                 if (Cache_gameround_duration > 5000)
                                     ch.rpg_rations += (i == 0) ? 1 : 0;
-                                if (Cache_gameround_duration > 4000)
+                                else if (Cache_gameround_duration > 4000)
                                     ch.rpg_rations += 1;
-                                if (Cache_gameround_duration > 3000)
+                                else if (Cache_gameround_duration > 3000)
                                     ch.rpg_rations += (i == 0) ? 2 : 1;
-                                if (Cache_gameround_duration > 2000)
+                                else if (Cache_gameround_duration > 2000)
                                     ch.rpg_rations += 2;
                                 else
                                     ch.rpg_rations += (i == 0) ? 3 : 2;
@@ -5114,14 +5124,19 @@ GameState::PrintPlayerStats()
             std::string sl_spells = sl_main + "2.html#Spells\">Package1</a>";
             std::string sl_drinks = sl_main + "2.html#Upkeep\">Package2</a>";
 
-            fprintf(fp, "\n Block %7d, %s\n", nHeight, fTestNet ? "testnet" : "mainnet");
-            fprintf(fp, " ----------------------\n\n");
-            fprintf(fp, "                                                                                                                                   AI Favorite Area         Queued Travel Order\n");
-            fprintf(fp, "                                                    Survival  %s                                       AI           AI\n", sl_staff.c_str());
-            fprintf(fp, "      Name    Role  %s   Coins      Age  %s  points        %s   %s     %s    %s       %s     %s   Area Position Distance   Area Position Distance Chance\n\n", sl_clevel.c_str(), sl_ration.c_str(), sl_weapon.c_str(), sl_items.c_str(), sl_amulets.c_str(), sl_rings.c_str(), sl_spells.c_str(), sl_drinks.c_str());
-
-            BOOST_FOREACH(PAIRTYPE(const PlayerID, PlayerState) &p, players)
+            for (int dl = 0; dl <= dao_DlevelMax; dl++)
             {
+              fprintf(fp, "\n Block %7d, %s, dlevel %d\n", nHeight, fTestNet ? "testnet" : "mainnet", dl);
+              fprintf(fp, " --------------------------------\n\n");
+              fprintf(fp, "                                                                                                                                   AI Favorite Area         Queued Travel Order\n");
+              fprintf(fp, "                                                    Survival  %s                                       AI           AI\n", sl_staff.c_str());
+              fprintf(fp, "      Name    Role  %s   Coins      Age  %s  points        %s   %s     %s    %s       %s     %s   Area Position Distance   Area Position Distance Chance\n\n", sl_clevel.c_str(), sl_ration.c_str(), sl_weapon.c_str(), sl_items.c_str(), sl_amulets.c_str(), sl_rings.c_str(), sl_spells.c_str(), sl_drinks.c_str());
+
+              BOOST_FOREACH(PAIRTYPE(const PlayerID, PlayerState) &p, players)
+              {
+                if (p.second.dlevel != dl)
+                    continue;
+
                 int tmp_color = p.second.color;
                 BOOST_FOREACH(PAIRTYPE(const int, CharacterState) &pc, p.second.characters)
                 {
@@ -5231,6 +5246,7 @@ GameState::PrintPlayerStats()
                         fprintf(fp, "\n");
                     }
                 }
+              }
             }
 
             fprintf(fp, "</pre>\n");
@@ -5925,6 +5941,11 @@ bool Game::PerformStep(const GameState &inState, const StepData &stepData, GameS
             {
                 // Tax from banking: 10%
                 int64 nTax = ch.loot.nAmount / 10;
+
+                // Abolish death tax
+                if (Cache_min_version >= 2020700)
+                    nTax = 0;
+
                 stepResult.nTaxAmount += nTax;
                 ch.loot.nAmount -= nTax;
 
