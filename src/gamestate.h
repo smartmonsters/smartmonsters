@@ -406,6 +406,7 @@ struct CharacterState
 
     // alphatest -- extended version of MoveTowardsWaypoint
     void MoveTowardsWaypointX_Merchants(RandomGenerator &rnd, int color_of_moving_char, int out_height);
+    void MoveTowardsWaypointX_Learn_From_WP(int out_height);
     void MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int color_of_moving_char, int out_height);
 
     void MoveTowardsWaypoint();
