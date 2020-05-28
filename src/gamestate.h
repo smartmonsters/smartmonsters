@@ -281,7 +281,7 @@ struct CharacterState
     int ai_regen_timer;
     int ai_order_time;
     //
-    int64 ai_reserve64_1;
+    int64 aux_age_active; // time spent on a dlevel that isn't frozen (could be int instead of int64)
     int64 ai_reserve64_2;
     int64 aux_storage_s1;
     int64 aux_storage_s2;
@@ -327,7 +327,7 @@ struct CharacterState
         ai_regen_timer(0),
         ai_order_time(0),
         //
-        ai_reserve64_1(0),
+        aux_age_active(0),
         ai_reserve64_2(0),
         aux_storage_s1(0),
         aux_storage_s2(0),
@@ -383,7 +383,7 @@ struct CharacterState
         READWRITE(ai_regen_timer);
         READWRITE(ai_order_time);
         //
-        READWRITE(ai_reserve64_1);
+        READWRITE(aux_age_active);
         READWRITE(ai_reserve64_2);
         READWRITE(aux_storage_s1);
         READWRITE(aux_storage_s2);
@@ -932,10 +932,13 @@ extern uint256 Gamecache_dyncheckpointhash2;
 #define RPG_BLOCKS_TILL_MONSTERAPOCALYPSE(H) (RPG_INTERVAL_MONSTERAPOCALYPSE - (H % RPG_INTERVAL_MONSTERAPOCALYPSE))
 #define RPG_COMMAND_CHAMPION_REQUIRED_SP(H) ((RPG_INTERVAL_MONSTERAPOCALYPSE * 10) / (RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(H) + 1))
 #define RPG_INTERVAL_BOUNTYCYCLE (Gamecache_devmode == 8 ? 1000 : 10000)
+extern bool Cache_gamecache_good;
 extern int Cache_timeslot_duration;
+extern int Cache_timeslot_start;
 extern int Cache_gameround_duration;
+extern int Cache_gameround_start;
 extern int nCalculatedActiveDlevel;
-#define NUM_DUNGEON_LEVELS 10
+#define NUM_DUNGEON_LEVELS 255
 
 
 extern int64 Cache_adjusted_ration_price;

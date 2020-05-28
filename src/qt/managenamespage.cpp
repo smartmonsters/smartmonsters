@@ -1035,7 +1035,23 @@ void ManageNamesPage::chrononAnimChanged(qreal t)
 void ManageNamesPage::chrononAnimFinished()
 {
     // alphatest -- display number of remaining blocks for current game round
-    ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight) + tr(" ... new round starts in: %1").arg(RPG_BLOCKS_TILL_MONSTERAPOCALYPSE(gameState.nHeight)));
+    if (!Cache_gamecache_good)
+    {
+        ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight));
+    }
+    else if ((nDisplayDlevel < 0) || (nDisplayDlevel >= Cache_gameround_duration / Cache_timeslot_duration))
+    {
+        ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight) + tr(", Level %1 (not yet voted into existence)").arg(nDisplayDlevel));
+    }
+    else if (nDisplayDlevel == nCalculatedActiveDlevel)
+    {
+        ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight) + tr(", Level %1").arg(nDisplayDlevel) + tr(", current round ends at %1").arg(Cache_timeslot_start + Cache_timeslot_duration));
+    }
+    else
+    {
+        int displayed_level_timeslot_start = Cache_gameround_start + (Cache_timeslot_duration * nDisplayDlevel);
+        ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight) + tr(", Level %1").arg(nDisplayDlevel) + tr(" (frozen until %1)").arg(displayed_level_timeslot_start + Cache_gameround_duration));
+    }
 }
 
 void ManageNamesPage::on_configButton_clicked()

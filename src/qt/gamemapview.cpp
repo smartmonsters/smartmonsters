@@ -135,6 +135,8 @@ class GameMapCache
             // Dungeon levels part 2
             if (nDisplayDlevel != nCalculatedActiveDlevel)
                 coin->setOpacity(0.4);
+            else
+                coin->setOpacity(1.0);
 
             text = new QGraphicsTextItem(coin);
             text->setHtml(
@@ -149,6 +151,13 @@ class GameMapCache
         void Update(int64 amount)
         {
             referenced = true;
+
+            // Dungeon levels part 2
+            if (nDisplayDlevel != nCalculatedActiveDlevel)
+                coin->setOpacity(0.4);
+            else
+                coin->setOpacity(1.0);
+
             if (amount == nAmount)
                 return;
             // If only the amount changed, update text
@@ -188,11 +197,19 @@ class GameMapCache
             // Dungeon levels part 2
             if (nDisplayDlevel != nCalculatedActiveDlevel)
                 heart->setOpacity(0.4);
+            else
+                heart->setOpacity(1.0);
         }
 
         void Update()
         {
             referenced = true;
+
+            // Dungeon levels part 2
+            if (nDisplayDlevel != nCalculatedActiveDlevel)
+                heart->setOpacity(0.4);
+            else
+                heart->setOpacity(1.0);
         }
 
         operator bool() const { return heart != NULL; }
@@ -296,6 +313,9 @@ class GameMapCache
             // Dungeon levels part 2
             if (color_a1_ == 0)
                 sprite->setOpacity(0.4);
+            else
+                sprite->setOpacity(1.0);
+
             color_a1 = color_a1_ ? color_a1_ : RPG_ICON_EMPTY;
 
             // alphatest -- better player sprites
@@ -343,7 +363,9 @@ class GameMapCache
             text->setZValue(1e9);
             // Dungeon levels part 2
             if (color_a1_ == 0)
-                sprite->setOpacity(0.4);
+                text->setOpacity(0.4);
+            else
+                text->setOpacity(1.0);
 
             UpdPos();
             UpdText();
@@ -354,6 +376,19 @@ class GameMapCache
         void Update(int x_, int y_, int z_order_, int color_, int color_a1_, int color_a2_, int color_a3_, int color_d1_, int color_d2_, int color_d3_, int dir_, int64 amount)
         {
             referenced = true;
+
+            // Dungeon levels part 2
+            if (color_a1_ == 0)
+            {
+                sprite->setOpacity(0.4);
+                text->setOpacity(0.4);
+            }
+            else
+            {
+                sprite->setOpacity(1.0);
+                text->setOpacity(1.0);
+            }
+
             if (amount != nLootAmount)
             {
                 if ((amount > 0) != (nLootAmount > 0))
@@ -389,7 +424,10 @@ class GameMapCache
             // alphatest -- better player sprites
             if (color_a1 != color_a1_)
             {
-                color_a1 = color_a1_;
+                // Dungeon levels part 2
+                color_a1 = color_a1_ ? color_a1_ : RPG_ICON_EMPTY;
+
+//                color_a1 = color_a1_;
                 symbol_sprite_a1->setPixmap(grobjs->tiles[color_a1]);
             }
             if (color_a2 != color_a2_)

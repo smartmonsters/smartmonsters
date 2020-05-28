@@ -849,11 +849,11 @@ void CharacterState::MoveTowardsWaypointX_Merchants(RandomGenerator &rnd, int co
     }
     else
     {
-        if (ai_reserve64_1 == 0)
-            ai_reserve64_1 = out_height - aux_spawn_block; // initialize with correct age
+        if (aux_age_active == 0)
+            aux_age_active = out_height - aux_spawn_block; // initialize with correct age
         else
-            ai_reserve64_1++;
-        if (ai_reserve64_1 % Cache_timeslot_duration == 0)
+            aux_age_active++;
+        if (aux_age_active % Cache_timeslot_duration == 0)
             need_ration = true;
 
         if (ai_state2 & AI_STATE2_STASIS)
@@ -5128,9 +5128,9 @@ GameState::PrintPlayerStats()
             {
               fprintf(fp, "\n Block %7d, %s, dlevel %d\n", nHeight, fTestNet ? "testnet" : "mainnet", dl);
               fprintf(fp, " --------------------------------\n\n");
-              fprintf(fp, "                                                                                                                                   AI Favorite Area         Queued Travel Order\n");
-              fprintf(fp, "                                                    Survival  %s                                       AI           AI\n", sl_staff.c_str());
-              fprintf(fp, "      Name    Role  %s   Coins      Age  %s  points        %s   %s     %s    %s       %s     %s   Area Position Distance   Area Position Distance Chance\n\n", sl_clevel.c_str(), sl_ration.c_str(), sl_weapon.c_str(), sl_items.c_str(), sl_amulets.c_str(), sl_rings.c_str(), sl_spells.c_str(), sl_drinks.c_str());
+              fprintf(fp, "                                                                                                                                           AI Favorite Area         Queued Travel Order\n");
+              fprintf(fp, "                                        Age    Age          Survival  %s                                       AI           AI\n", sl_staff.c_str());
+              fprintf(fp, "      Name    Role  %s   Coins     total  active  %s points        %s   %s     %s    %s       %s     %s   Area Position Distance   Area Position Distance Chance\n\n", sl_clevel.c_str(), sl_ration.c_str(), sl_weapon.c_str(), sl_items.c_str(), sl_amulets.c_str(), sl_rings.c_str(), sl_spells.c_str(), sl_drinks.c_str());
 
               BOOST_FOREACH(PAIRTYPE(const PlayerID, PlayerState) &p, players)
               {
@@ -5216,7 +5216,7 @@ GameState::PrintPlayerStats()
                     if (time_since_order > time_for_100_percent)
                         time_since_order = time_for_100_percent; // chance of order being executed
 
-                    fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d  %5d  %5d     %11s   %-7s   %-7s   %-8s   %-10s   %-8s", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str());
+                    fprintf(fp, "%10s.%-3d %s  %3d  %9s  %7d %7d  %5d  %5d     %11s   %-7s   %-7s   %-8s   %-10s   %-8s", p.first.c_str(), i, srole.c_str(), RPG_CLEVEL_FROM_LOOT(ch.loot.nAmount), FormatMoney(ch.loot.nAmount / CENT * CENT).c_str(), nHeight - ch.aux_spawn_block, (int)ch.aux_age_active, ch.rpg_rations, ch.rpg_survival_points, sw.c_str(), sa.c_str(), sr.c_str(), sar.c_str(), sai1.c_str(), sai2.c_str());
 
                     if (tmp_fav_point >= POIINDEX_NORMAL_FIRST)
                     {
@@ -5224,7 +5224,7 @@ GameState::PrintPlayerStats()
 
                         if (tmp_queued_point > 0)
                         {
-                            fprintf(fp, "       #%-3d  %3d,%-3d   %4d  %4d,%-4d", tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][nfy][nfx], time_since_order, time_for_100_percent);
+                            fprintf(fp, "       #%-3d  %3d,%-3d   %4d  %4d/%-4d", tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][nfy][nfx], time_since_order, time_for_100_percent);
                             if (tmp_marked_point > 0)
                                 fprintf(fp, "   MARKED area#%-3d %3d,%-3d", tmp_marked_point, nmx, nmy);
                             if (tmp_duty_point > 0)
@@ -5237,7 +5237,7 @@ GameState::PrintPlayerStats()
                         if (tmp_queued_point > 0)
                         {
                             fprintf(fp, "                     ");
-                            fprintf(fp, "       #%-3d  %3d,%-3d   %4d  %4d,%-4d", tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][ch.coord.y][ch.coord.x], time_since_order, time_for_100_percent);
+                            fprintf(fp, "       #%-3d  %3d,%-3d   %4d  %4d/%-4d", tmp_queued_point, nqx, nqy, Distance_To_POI[tmp_queued_point][ch.coord.y][ch.coord.x], time_since_order, time_for_100_percent);
                             if (tmp_marked_point > 0)
                                 fprintf(fp, "   MARKED area#%-3d %3d,%-3d", tmp_marked_point, nmx, nmy);
                             if (tmp_duty_point > 0)
@@ -5356,7 +5356,6 @@ GameState::PrintPlayerStats()
             fprintf(fp, "Game round in blocks (cached):      %10d\n\n", Cache_gameround_duration);
 
             fprintf(fp, "Current game round start (cached):  %10d\n", Cache_gameround_start);
-            fprintf(fp, "  blocks since start (old):         %10d\n", RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(nHeight));
             fprintf(fp, "  blocks since start (cached):      %10d\n\n", Cache_gameround_blockcount);
 
             fprintf(fp, "\n\n Dungeon Levels\n");
@@ -5366,6 +5365,7 @@ GameState::PrintPlayerStats()
 
             fprintf(fp, "Time slot per active dlevel:        %10d\n", Cache_timeslot_duration);
             fprintf(fp, "  blocks since timeslot start:      %10d\n", Cache_timeslot_blockcount);
+            fprintf(fp, "  blocks since start (old):         %10d\n", RPG_BLOCKS_SINCE_MONSTERAPOCALYPSE(nHeight));
             fprintf(fp, "  active since block:               %10d\n", Cache_timeslot_start);
             fprintf(fp, "  active til block:                 %10d\n\n", Cache_timeslot_start + Cache_timeslot_duration - 1);
 
