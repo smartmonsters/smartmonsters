@@ -5434,8 +5434,8 @@ GameState::PrintPlayerStats()
 
             // links to online manual
             std::string sl_vote_request = sl_main + "3.html#Voting1\">Next voting interval</a>";
-            std::string sl_vote_howto = sl_main + "3.html#VotingHowto\">Current voting interval</a>";
-            std::string sl_vote_lockedcoin = sl_main + "5.html#Nameaddress\">Locked Coins</a>";
+            std::string sl_vote_howto = sl_main + "3.html#Voting1\">Current voting interval</a>";
+            std::string sl_vote_lockedcoin = sl_main + "5.html#Synonyms\">Locked Coins</a>";
 
             fprintf(fp, "\n Block %7d, %s\n", nHeight, fTestNet ? "testnet" : "mainnet");
             fprintf(fp, " ----------------------\n");
@@ -5457,6 +5457,10 @@ GameState::PrintPlayerStats()
                  (dao_BestComment == "Upkeep shall be lower!") ||
                  (dao_BestComment == "Increase the population limit!") ||
                  (dao_BestComment == "Reduce the population limit!") ||
+                 (dao_BestComment == "Spawn a new dungeon level!") ||
+                 (dao_BestComment == "Erase a dungeon level!") ||
+                 (dao_BestComment == "Increase the number of blocks per game round!") ||
+                 (dao_BestComment == "Reduce the number of blocks per game round!") ||
                  (dao_BestComment == "All nodes must upgrade!") )
             {
                 std::string sl_formal = sl_main + "3.html#Voting2\">" + dao_BestComment + "</a>";
@@ -5480,6 +5484,10 @@ GameState::PrintPlayerStats()
                  (dao_BestCommentFinal == "Upkeep shall be lower!") ||
                  (dao_BestCommentFinal == "Increase the population limit!") ||
                  (dao_BestCommentFinal == "Reduce the population limit!") ||
+                 (dao_BestCommentFinal == "Spawn a new dungeon level!") ||
+                 (dao_BestCommentFinal == "Erase a dungeon level!") ||
+                 (dao_BestCommentFinal == "Increase the number of blocks per game round!") ||
+                 (dao_BestCommentFinal == "Reduce the number of blocks per game round!") ||
                  (dao_BestCommentFinal == "All nodes must upgrade!") )
             {
                 std::string sl_formal = sl_main + "3.html#Voting2\">" + dao_BestCommentFinal + "</a>";

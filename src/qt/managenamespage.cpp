@@ -1045,7 +1045,7 @@ void ManageNamesPage::chrononAnimFinished()
     }
     else if (nDisplayDlevel == nCalculatedActiveDlevel)
     {
-        ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight) + tr(", Level %1").arg(nDisplayDlevel) + tr(", current round ends at %1").arg(Cache_timeslot_start + Cache_timeslot_duration));
+        ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight) + tr(", Level %1").arg(nDisplayDlevel) + tr(" (round will end at %1)").arg(Cache_timeslot_start + Cache_timeslot_duration - 1));
     }
     else
     {
