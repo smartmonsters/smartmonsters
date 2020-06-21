@@ -1766,6 +1766,10 @@ bool CBlock::CheckProofOfWork(int nHeight) const
 
         if (auxpow.get() != NULL)
         {
+            // alphatest -- disallow auxpow
+            return error("CheckProofOfWork() : AUX POW is not allowed");
+
+
             /* Disallow auxpow parent blocks that have an auxpow themselves.
                While this was introduced with a fork, no such tx are present
                in the chain before the fork point.  Thus it can be enforced
