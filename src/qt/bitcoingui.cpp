@@ -72,7 +72,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 {
     resize(850, 550);
     // alphatest -- window title
-    setWindowTitle(tr("Smart Monsters Beta") + " - " + tr("Wallet"));
+    setWindowTitle(tr("Alifecoin") + " - " + tr("Smart Monsters Wallet"));
 #ifndef Q_OS_MAC
     if (VERSION_IS_BETA || !GetBoolArg("-testnet"))
     {
