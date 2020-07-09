@@ -4470,11 +4470,18 @@ GameState::Pass1_DAO()
                 // parse the requests (if exactly 1 block old)
                 if (p.second.msg_request_block == nHeight - 1)
                 {
-                    ParseMoney(p.second.msg_request, p.second.coins_request);
+                    if ((Cache_min_version >= 2020800) && (p.second.msg_request.length() > 100))
+                        p.second.coins_request = 0;
+                    else
+                        ParseMoney(p.second.msg_request, p.second.coins_request);
 
                     if (p.second.coins_request >= COIN)
                     {
-                        ParseMoney(p.second.msg_fee, p.second.coins_fee);
+                        if ((Cache_min_version >= 2020800) && (p.second.msg_fee.length() > 100))
+                            p.second.coins_fee = 0;
+                        else
+                            ParseMoney(p.second.msg_fee, p.second.coins_fee);
+
                         if (p.second.coins_fee < p.second.coins_request / 100)
                             p.second.coins_fee = p.second.coins_request / 100;
                     }
@@ -4516,7 +4523,10 @@ GameState::Pass1_DAO()
                 // parse the votes (if exactly 1 block old)
                 if (p.second.msg_vote_block == nHeight - 1)
                 {
-                    ParseMoney(p.second.msg_vote, p.second.coins_vote);
+                    if ((Cache_min_version >= 2020800) && (p.second.msg_vote.length() > 100))
+                        p.second.coins_vote = 0;
+                    else
+                        ParseMoney(p.second.msg_vote, p.second.coins_vote);
                 }
             }
         }
