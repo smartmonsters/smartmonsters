@@ -3,7 +3,7 @@ Smart Monsters beta test
 
 Smart Monsters on the blockchain: crypto currency and decentralized game with strategy and RPG elements.
 
-This beta test always starts as testnet, using 'smartmonsters/testnet-beta' data folder.
+This beta test always starts as testnet.
 
 Newest Windows client:
 

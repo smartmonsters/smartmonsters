@@ -932,8 +932,7 @@ void GetDataDir(char* pszDir)
         char* p = pszDir + strlen(pszDir);
         if (p > pszDir && p[-1] != '/' && p[-1] != '\\')
             *p++ = '/';
-        // alphatest -- testnet folder
-        strcpy(p, "testnet_beta");
+        strcpy(p, "testnet");
         nVariation += 2;
     }
     static bool pfMkdir[4];

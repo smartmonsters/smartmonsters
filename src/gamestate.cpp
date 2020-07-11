@@ -3270,6 +3270,25 @@ GameState::GameState()
     // Dungeon levels
     dao_DlevelMax = 0;
     dao_IntervalMonsterApocalypse = 0;
+    // reserve
+    gs_reserve_ll1 = 0;
+    gs_reserve_ll2 = 0;
+    gs_reserve_ll3 = 0;
+    gs_reserve_ll4 = 0;
+    gs_reserve_ll5 = 0;
+    gs_reserve_ll6 = 0;
+    gs_reserve_ll7 = 0;
+    gs_reserve_ll8 = 0;
+    gs_reserve_ll9 = 0;
+    gs_reserve1 = 0;
+    gs_reserve2 = 0;
+    gs_reserve3 = 0;
+    gs_reserve4 = 0;
+    gs_reserve5 = 0;
+    gs_reserve6 = 0;
+    gs_reserve7 = 0;
+    gs_reserve8 = 0;
+    gs_reserve9 = 0;
 }
 
 void

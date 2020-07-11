@@ -292,6 +292,22 @@ struct CharacterState
     int aux_last_sale_block;
     int aux_stasis_block;
     int aux_gather_block;
+    // reserve
+    unsigned char ch_reserve_uc1;
+    unsigned char ch_reserve_uc2;
+    unsigned char ch_reserve_uc3;
+    unsigned char ch_reserve_uc4;
+    unsigned char ch_reserve_uc5;
+    int64 ch_reserve_ll1;
+    int64 ch_reserve_ll2;
+    int64 ch_reserve_ll3;
+    int64 ch_reserve_ll4;
+    int64 ch_reserve_ll5;
+    int ch_reserve1;
+    int ch_reserve2;
+    int ch_reserve3;
+    int ch_reserve4;
+    int ch_reserve5;
 
     CharacterState ()
       : coord(0, 0), dir(0), from(0, 0),
@@ -337,7 +353,23 @@ struct CharacterState
         aux_spawn_block(0),
         aux_last_sale_block(0),
         aux_stasis_block(0),
-        aux_gather_block(0)
+        aux_gather_block(0),
+        // reserve
+        ch_reserve_uc1(0),
+        ch_reserve_uc2(0),
+        ch_reserve_uc3(0),
+        ch_reserve_uc4(0),
+        ch_reserve_uc5(0),
+        ch_reserve_ll1(0),
+        ch_reserve_ll2(0),
+        ch_reserve_ll3(0),
+        ch_reserve_ll4(0),
+        ch_reserve_ll5(0),
+        ch_reserve1(0),
+        ch_reserve2(0),
+        ch_reserve3(0),
+        ch_reserve4(0),
+        ch_reserve5(0)
     {}
 
     IMPLEMENT_SERIALIZE
@@ -394,6 +426,22 @@ struct CharacterState
         READWRITE(aux_last_sale_block);
         READWRITE(aux_stasis_block);
         READWRITE(aux_gather_block);
+        // reserve
+        READWRITE(ch_reserve_uc1);
+        READWRITE(ch_reserve_uc2);
+        READWRITE(ch_reserve_uc3);
+        READWRITE(ch_reserve_uc4);
+        READWRITE(ch_reserve_uc5);
+        READWRITE(ch_reserve_ll1);
+        READWRITE(ch_reserve_ll2);
+        READWRITE(ch_reserve_ll3);
+        READWRITE(ch_reserve_ll4);
+        READWRITE(ch_reserve_ll5);
+        READWRITE(ch_reserve1);
+        READWRITE(ch_reserve2);
+        READWRITE(ch_reserve3);
+        READWRITE(ch_reserve4);
+        READWRITE(ch_reserve5);
     )
 
     void Spawn(int color, RandomGenerator &rnd);
@@ -477,10 +525,31 @@ struct PlayerState
     // reserve
     std::string pl_reserve_s1;
     std::string pl_reserve_s2;
+    std::string pl_reserve_s3;
+    std::string pl_reserve_s4;
+    std::string pl_reserve_s5;
+    std::string pl_reserve_s6;
+    std::string pl_reserve_s7;
+    std::string pl_reserve_s8;
+    std::string pl_reserve_s9;
+    int64 pl_reserve_ll1;
+    int64 pl_reserve_ll2;
+    int64 pl_reserve_ll3;
+    int64 pl_reserve_ll4;
+    int64 pl_reserve_ll5;
+    int64 pl_reserve_ll6;
+    int64 pl_reserve_ll7;
+    int64 pl_reserve_ll8;
+    int64 pl_reserve_ll9;
     int dlevel;
     int pl_reserve2;
-    int64 pl_reserve3;
-    int64 pl_reserve4;
+    int pl_reserve3;
+    int pl_reserve4;
+    int pl_reserve5;
+    int pl_reserve6;
+    int pl_reserve7;
+    int pl_reserve8;
+    int pl_reserve9;
 
     IMPLEMENT_SERIALIZE
     (
@@ -525,10 +594,31 @@ struct PlayerState
         // reserve
         READWRITE(pl_reserve_s1);
         READWRITE(pl_reserve_s2);
+        READWRITE(pl_reserve_s3);
+        READWRITE(pl_reserve_s4);
+        READWRITE(pl_reserve_s5);
+        READWRITE(pl_reserve_s6);
+        READWRITE(pl_reserve_s7);
+        READWRITE(pl_reserve_s8);
+        READWRITE(pl_reserve_s9);
+        READWRITE(pl_reserve_ll1);
+        READWRITE(pl_reserve_ll2);
+        READWRITE(pl_reserve_ll3);
+        READWRITE(pl_reserve_ll4);
+        READWRITE(pl_reserve_ll5);
+        READWRITE(pl_reserve_ll6);
+        READWRITE(pl_reserve_ll7);
+        READWRITE(pl_reserve_ll8);
+        READWRITE(pl_reserve_ll9);
         READWRITE(dlevel);
         READWRITE(pl_reserve2);
         READWRITE(pl_reserve3);
         READWRITE(pl_reserve4);
+        READWRITE(pl_reserve5);
+        READWRITE(pl_reserve6);
+        READWRITE(pl_reserve7);
+        READWRITE(pl_reserve8);
+        READWRITE(pl_reserve9);
 
         READWRITE(coinAmount);
     )
@@ -543,7 +633,10 @@ struct PlayerState
       // alphatest -- reserved for high level player input
       , msg_area_block(0), msg_merchant_block(0)
       // reserve
-      , dlevel(0), pl_reserve2(0), pl_reserve3(0), pl_reserve4(0)
+      , pl_reserve_ll1(0), pl_reserve_ll2(0), pl_reserve_ll3(0), pl_reserve_ll4(0), pl_reserve_ll5(0)
+      , pl_reserve_ll6(0), pl_reserve_ll7(0), pl_reserve_ll8(0), pl_reserve_ll9(0)
+      , dlevel(0), pl_reserve2(0), pl_reserve3(0), pl_reserve4(0), pl_reserve5(0)
+      , pl_reserve6(0), pl_reserve7(0), pl_reserve8(0), pl_reserve9(0)
     {}
 
     void SpawnCharacter(RandomGenerator &rnd);
@@ -619,6 +712,31 @@ struct GameState
     // reserve
     std::string gs_reserve_s1;
     std::string gs_reserve_s2;
+    std::string gs_reserve_s3;
+    std::string gs_reserve_s4;
+    std::string gs_reserve_s5;
+    std::string gs_reserve_s6;
+    std::string gs_reserve_s7;
+    std::string gs_reserve_s8;
+    std::string gs_reserve_s9;
+    int64 gs_reserve_ll1;
+    int64 gs_reserve_ll2;
+    int64 gs_reserve_ll3;
+    int64 gs_reserve_ll4;
+    int64 gs_reserve_ll5;
+    int64 gs_reserve_ll6;
+    int64 gs_reserve_ll7;
+    int64 gs_reserve_ll8;
+    int64 gs_reserve_ll9;
+    int gs_reserve1;
+    int gs_reserve2;
+    int gs_reserve3;
+    int gs_reserve4;
+    int gs_reserve5;
+    int gs_reserve6;
+    int gs_reserve7;
+    int gs_reserve8;
+    int gs_reserve9;
 
     IMPLEMENT_SERIALIZE
     (
@@ -670,6 +788,31 @@ struct GameState
       // reserve
       READWRITE(gs_reserve_s1);
       READWRITE(gs_reserve_s2);
+      READWRITE(gs_reserve_s3);
+      READWRITE(gs_reserve_s4);
+      READWRITE(gs_reserve_s5);
+      READWRITE(gs_reserve_s6);
+      READWRITE(gs_reserve_s7);
+      READWRITE(gs_reserve_s8);
+      READWRITE(gs_reserve_s9);
+      READWRITE(gs_reserve_ll1);
+      READWRITE(gs_reserve_ll2);
+      READWRITE(gs_reserve_ll3);
+      READWRITE(gs_reserve_ll4);
+      READWRITE(gs_reserve_ll5);
+      READWRITE(gs_reserve_ll6);
+      READWRITE(gs_reserve_ll7);
+      READWRITE(gs_reserve_ll8);
+      READWRITE(gs_reserve_ll9);
+      READWRITE(gs_reserve1);
+      READWRITE(gs_reserve2);
+      READWRITE(gs_reserve3);
+      READWRITE(gs_reserve4);
+      READWRITE(gs_reserve5);
+      READWRITE(gs_reserve6);
+      READWRITE(gs_reserve7);
+      READWRITE(gs_reserve8);
+      READWRITE(gs_reserve9);
     )
 
     void UpdateVersion(int oldVersion);
