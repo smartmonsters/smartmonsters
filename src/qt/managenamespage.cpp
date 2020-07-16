@@ -1037,7 +1037,7 @@ void ManageNamesPage::chrononAnimFinished()
     // alphatest -- display number of remaining blocks for current game round
     if (!Cache_gamecache_good)
     {
-        ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight));
+        ui->chrononLabel->setText(tr("Chronon: %1").arg(gameState.nHeight) + tr(", Level %1").arg(nDisplayDlevel));
     }
     else if ((nDisplayDlevel < 0) || (nDisplayDlevel >= Cache_gameround_duration / Cache_timeslot_duration))
     {

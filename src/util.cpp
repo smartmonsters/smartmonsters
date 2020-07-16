@@ -35,6 +35,7 @@ bool fAddressReuse = true;
 
 // Dungeon levels part 2
 int nDisplayDlevel = 0;
+int nDisplayDlevelConf = 0;
 
 
 

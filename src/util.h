@@ -213,6 +213,7 @@ extern bool fAddressReuse;
 
 // Dungeon levels part 2
 extern int nDisplayDlevel;
+extern int nDisplayDlevelConf;
 
 void RandAddSeed();
 void RandAddSeedPerfmon();

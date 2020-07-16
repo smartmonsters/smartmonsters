@@ -2741,28 +2741,34 @@ void GameMapView::SelectPlayer(const QString &name, const GameState &state, Queu
             }
 
             int b = state.nHeight % RPG_INTERVAL_MONSTERAPOCALYPSE;
-            int b_start = state.nHeight - b;
+//            int b_start = state.nHeight - b;
+            int b_start = state.nHeight - b + (mi->second.dlevel * Cache_timeslot_duration);
             int b_start_next = b_start + RPG_INTERVAL_MONSTERAPOCALYPSE;
-            int b_countdown = RPG_INTERVAL_MONSTERAPOCALYPSE - b;
+//            int b_countdown = RPG_INTERVAL_MONSTERAPOCALYPSE - b;
+            int b_countdown = RPG_INTERVAL_MONSTERAPOCALYPSE - b + (mi->second.dlevel * Cache_timeslot_duration);
             int b_chance = 100;
             if (b_countdown < RPG_INTERVAL_MONSTERAPOCALYPSE / 2)
             {
                 b_chance = b_countdown * 100 / (RPG_INTERVAL_MONSTERAPOCALYPSE / 2);
             }
-            QString qs2 = "\n\nPress 'Go' to send travel order\nfor chronon ";
-            qs2 += QString::number(b_start_next);
-            qs2 += QString::fromStdString(" (");
-            qs2 += QString::number(b_chance);
-            qs2 += QString::fromStdString("% chance)");
-            if (b_chance < 100)
+            QString qs2 = "\n\nPress 'Go' to send travel order";
+            if (Cache_gamecache_good)
             {
-                qs2 += QString::fromStdString("\nor chronon ");
-                qs2 += QString::number(b_start_next + RPG_INTERVAL_MONSTERAPOCALYPSE);
+                qs2 += "\nfor chronon ";
+                qs2 += QString::number(b_start_next);
                 qs2 += QString::fromStdString(" (");
-                qs2 += QString::number(100 -b_chance);
+                qs2 += QString::number(b_chance);
                 qs2 += QString::fromStdString("% chance)");
+                if (b_chance < 100)
+                {
+                    qs2 += QString::fromStdString("\nor chronon ");
+                    qs2 += QString::number(b_start_next + RPG_INTERVAL_MONSTERAPOCALYPSE);
+                    qs2 += QString::fromStdString(" (");
+                    qs2 += QString::number(100 -b_chance);
+                    qs2 += QString::fromStdString("% chance)");
+                }
+                qs2 += QString::fromStdString(".");
             }
-            qs2 += QString::fromStdString(".");
             qs += qs2;
 
             int xpix_text = (auxPathCircle1x - 4) * TILE_SIZE;

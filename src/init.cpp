@@ -1228,7 +1228,8 @@ bool AppInit2(int argc, char* argv[])
 
 
     // Dungeon levels part 2
-    nDisplayDlevel = GetArg("-dlevel", 0);
+    nDisplayDlevelConf = GetArg("-dlevel", -1);
+    if (nDisplayDlevelConf >= 0) nDisplayDlevel = nDisplayDlevelConf;
 
 
     // alphatest -- calculate distances
