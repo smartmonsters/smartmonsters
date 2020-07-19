@@ -455,7 +455,7 @@ struct CharacterState
     // alphatest -- extended version of MoveTowardsWaypoint
     void MoveTowardsWaypointX_Merchants(RandomGenerator &rnd, int color_of_moving_char, int out_height);
     void MoveTowardsWaypointX_Learn_From_WP(int out_height);
-    void MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int color_of_moving_char, int out_height);
+    void MoveTowardsWaypointX_Pathfinder(RandomGenerator &rnd, int color_of_moving_char, int out_height, int out_monster);
 
     void MoveTowardsWaypoint();
     WaypointVector DumpPath(const WaypointVector *alternative_waypoints = NULL) const;
@@ -728,8 +728,8 @@ struct GameState
     int64 gs_reserve_ll7;
     int64 gs_reserve_ll8;
     int64 gs_reserve_ll9;
-    int gs_reserve1;
-    int gs_reserve2;
+    int dao_CrownholderBounty;
+    int dao_MonsTerritorial;
     int gs_reserve3;
     int gs_reserve4;
     int gs_reserve5;
@@ -804,8 +804,8 @@ struct GameState
       READWRITE(gs_reserve_ll7);
       READWRITE(gs_reserve_ll8);
       READWRITE(gs_reserve_ll9);
-      READWRITE(gs_reserve1);
-      READWRITE(gs_reserve2);
+      READWRITE(dao_CrownholderBounty);
+      READWRITE(dao_MonsTerritorial);
       READWRITE(gs_reserve3);
       READWRITE(gs_reserve4);
       READWRITE(gs_reserve5);
