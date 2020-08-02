@@ -44,7 +44,7 @@
         <item>
          <widget class="QLabel" name="chrononLabel">
           <property name="toolTip">
-           <string>Time moment of the game (equals the block number)</string>
+           <string>Time moment of the game (equals the block number), which of the vertically stacked map levels is displayed, and end time of current battle (or 'frozen' status) on this map level.</string>
           </property>
           <property name="text">
            <string notr="true">Chronon: 0</string>

@@ -2148,13 +2148,13 @@ void GameMapView::updateGameMap(const GameState &gameState)
                 }
                 else if (tmp_npc_role == MERCH_CHAMPION_TEST)
                 {
-                    entry.name += QString::fromStdString(" 'Command Champion, need ");
+                    entry.name += QString::fromStdString(" 'Summon Champion spell costs ");
                     entry.name += QString::number(RPG_COMMAND_CHAMPION_REQUIRED_SP(gameState.nHeight));
-                    entry.name += QString::fromStdString(" survival points'");
+                    entry.name += QString::fromStdString(" SP'");
                 }
                 else if (tmp_npc_role == MERCH_STASIS)
                 {
-                    entry.name += QString::fromStdString(" 'Free unlimited vacations'");
+                    entry.name += QString::fromStdString(" 'Free vacations here'");
                 }
                 else
                 {
@@ -2186,7 +2186,7 @@ void GameMapView::updateGameMap(const GameState &gameState)
                     {
                         entry.name += QString::fromStdString(" 'free ");
                         entry.name += tmp_item_desc;
-                        entry.name += QString::fromStdString("'");
+                        entry.name += QString::fromStdString(" here'");
                     }
                     else
                     {
@@ -2194,7 +2194,7 @@ void GameMapView::updateGameMap(const GameState &gameState)
                         entry.name += tmp_item_desc;
                         entry.name += QString::fromStdString(" for ");
                         entry.name += QString::number(tmp_item_price);
-                        entry.name += QString::fromStdString(" coins");
+                        entry.name += QString::fromStdString(" coins here");
                         if (Rpgcache_MOf_discount)
                         {
                             entry.name += QString::fromStdString(" (");
@@ -2765,20 +2765,24 @@ void GameMapView::SelectPlayer(const QString &name, const GameState &state, Queu
             QString qs2 = "\n\nPress 'Go' to send travel order";
             if (Cache_gamecache_good)
             {
-                qs2 += "\nfor chronon ";
+                qs2 += "\nfor block ";
                 qs2 += QString::number(b_start_next);
                 qs2 += QString::fromStdString(" (");
                 qs2 += QString::number(b_chance);
                 qs2 += QString::fromStdString("% chance)");
                 if (b_chance < 100)
                 {
-                    qs2 += QString::fromStdString("\nor chronon ");
+                    qs2 += QString::fromStdString("\nor block ");
                     qs2 += QString::number(b_start_next + RPG_INTERVAL_MONSTERAPOCALYPSE);
                     qs2 += QString::fromStdString(" (");
                     qs2 += QString::number(100 - b_chance);
                     qs2 += QString::fromStdString("% chance)");
                 }
                 qs2 += QString::fromStdString(".");
+            }
+            else
+            {
+                qs2 += "\n(est. start time available after next block)";
             }
             qs += qs2;
 
