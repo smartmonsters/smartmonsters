@@ -2740,12 +2740,23 @@ void GameMapView::SelectPlayer(const QString &name, const GameState &state, Queu
                 qs = "Player base. This is a safe zone,\ncombat is not allowed, and\ncoins or hearts will not spawn here.\nEntry is restricted to members of the\nmatching color faction.";
             }
 
+            // blocks in the current game round
             int b = state.nHeight % RPG_INTERVAL_MONSTERAPOCALYPSE;
-//            int b_start = state.nHeight - b;
-            int b_start = state.nHeight - b + (mi->second.dlevel * Cache_timeslot_duration);
+
+            // timeslot start for this player (may be in the future or in the past)
+            int b_offset_timeslot = mi->second.dlevel * Cache_timeslot_duration;
+            int b_start = state.nHeight - b + b_offset_timeslot;
+
+            // timeslot start for this player in next game round
             int b_start_next = b_start + RPG_INTERVAL_MONSTERAPOCALYPSE;
-//            int b_countdown = RPG_INTERVAL_MONSTERAPOCALYPSE - b;
-            int b_countdown = RPG_INTERVAL_MONSTERAPOCALYPSE - b + (mi->second.dlevel * Cache_timeslot_duration);
+
+            // countdown to timeslot start for this player in next game round
+            int b_countdown = RPG_INTERVAL_MONSTERAPOCALYPSE - b + b_offset_timeslot;
+
+            // if timeslot start (current game round) for this player is still in the future
+            if (b_start > state.nHeight)
+                b_countdown -= RPG_INTERVAL_MONSTERAPOCALYPSE;
+
             int b_chance = 100;
             if (b_countdown < RPG_INTERVAL_MONSTERAPOCALYPSE / 2)
             {
@@ -2764,7 +2775,7 @@ void GameMapView::SelectPlayer(const QString &name, const GameState &state, Queu
                     qs2 += QString::fromStdString("\nor chronon ");
                     qs2 += QString::number(b_start_next + RPG_INTERVAL_MONSTERAPOCALYPSE);
                     qs2 += QString::fromStdString(" (");
-                    qs2 += QString::number(100 -b_chance);
+                    qs2 += QString::number(100 - b_chance);
                     qs2 += QString::fromStdString("% chance)");
                 }
                 qs2 += QString::fromStdString(".");
