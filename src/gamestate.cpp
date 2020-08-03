@@ -5968,8 +5968,11 @@ bool Game::PerformStep(const GameState &inState, const StepData &stepData, GameS
 
     // alphatest -- second pass (melee attacks, path-finding or ai)
     RandomGenerator rnd0(AI_rng_seed_hashblock);
-    printf("AI RNG seed %s\n", AI_rng_seed_hashblock.ToString().c_str());
-    printf("AI main function start %15"PRI64d"ms\n", GetTimeMillis() - ai_nStart);
+    if (fDebug)
+    {
+        printf("AI RNG seed %s\n", AI_rng_seed_hashblock.ToString().c_str());
+        printf("AI main function start %15"PRI64d"ms\n", GetTimeMillis() - ai_nStart);
+    }
     outState.Pass2_Melee();
 
     // For all alive players perform path-finding
@@ -6015,7 +6018,8 @@ bool Game::PerformStep(const GameState &inState, const StepData &stepData, GameS
     outState.Pass4_Refund();
 
     Displaycache_blockheight = outState.nHeight;
-    printf("AI main function height %d finished %15"PRI64d"ms\n", outState.nHeight, GetTimeMillis() - ai_nStart);
+    if (fDebug)
+        printf("AI main function height %d finished %15"PRI64d"ms\n", outState.nHeight, GetTimeMillis() - ai_nStart);
 
 #ifdef GUI
     // alphatest -- stat lists
