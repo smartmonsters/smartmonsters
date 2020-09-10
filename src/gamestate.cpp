@@ -1221,7 +1221,7 @@ void CharacterState::MoveTowardsWaypointX_Learn_From_WP(int out_height)
 
                         // postpone this change,
                         // going to same area where you already are may be useful if carrying Book of Resting
-                        if (Cache_min_version < 2020800)
+                        if (true) // was: if (Cache_min_version < .......)
                         {
                             ai_queued_harvest_poi = k_nearby;
                             ai_order_time = out_height;

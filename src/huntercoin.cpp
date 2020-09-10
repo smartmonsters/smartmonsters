@@ -3012,8 +3012,9 @@ bool CHuntercoinHooks::Lockin(int nHeight, uint256 hash)
         }
 
         // disable dynamic checkpoints (not implemented in 'core) and devmode (untested)
-//      if ((nHeight) && (nHeight == Gamecache_dyncheckpointheight2) && (hash != Gamecache_dyncheckpointhash2))
-//          return false;
+        // - enable dynamic checkpoints for testnet
+      if ((nHeight) && (nHeight == Gamecache_dyncheckpointheight2) && (hash != Gamecache_dyncheckpointhash2))
+          return false;
     }
 
     return true;
