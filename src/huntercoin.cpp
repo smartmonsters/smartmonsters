@@ -231,9 +231,11 @@ int64
 GetNameCoinAmount (unsigned nHeight, bool frontEnd)
 {
   // alphatest -- custom locked coin amount
-  if (nHeight > 30000) return 20 * COIN;
-  else if (nHeight > 20000) return 30 * COIN;
-  else if (nHeight > 10000) return 50 * COIN;
+  if (nHeight > 10500000) return COIN;
+  else if (nHeight > 2100000) return (6 - (nHeight / 2100000)) * COIN;
+  else if (nHeight > 500000) return 10 * COIN;
+  else if (nHeight > 180000) return 20 * COIN;
+  else if (nHeight > 50000) return 50 * COIN;
   else return 100 * COIN;
 
   /* For front-ends, increase the amount a little earlier.  */
@@ -3003,10 +3005,10 @@ bool CHuntercoinHooks::Lockin(int nHeight, uint256 hash)
     // alphatest -- checkpoints
     if (fTestNet)
     {
-        if (nHeight == 180)
+        if (nHeight == 200)
         {
             uint256 hash0;
-            hash0.SetHex("2081c25e2f3ac3dc61e70528c125f008e720952e995ee0f7af2a6076c2807657");
+            hash0.SetHex("2c01bf3e15179bc03550441bc77266e6287814abd2e37af57dbfd02e6ad121ee");
             if (hash != hash0)
                 return false;
         }
@@ -3045,12 +3047,12 @@ const char *strDNSSeed[] = { NULL };
 string GetDefaultDataDirSuffix() {
 #ifdef __WXMSW__
     // Windows
-    return string("SmartMonsters");
+    return string("SmartMonstersBeta");
 #else
 #ifdef MAC_OSX
-    return string("SmartMonsters");
+    return string("SmartMonstersBeta");
 #else
-    return string(".smartmonsters");
+    return string(".smartmonstersbeta");
 #endif
 #endif
 }

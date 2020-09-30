@@ -655,40 +655,41 @@ int Rpg_getMerchantOffer(int m, int h)
         return Rpgcache_MOf;
 
     // apply discount
-    if (h - Merchant_last_sale[m] > 10000)
+    int discount_earlier = (h / 2100000) + 1;
+    if (h - Merchant_last_sale[m] > 10000 / discount_earlier)
+    {
+        Rpgcache_MOf = Rpgcache_MOf / 20;
+        Rpgcache_MOf_discount = 95;
+    }
+    else if (h - Merchant_last_sale[m] > 5000 / discount_earlier)
     {
         Rpgcache_MOf = Rpgcache_MOf / 10;
         Rpgcache_MOf_discount = 90;
     }
-    else if (h - Merchant_last_sale[m] > 5000)
+    else if (h - Merchant_last_sale[m] > 2000 / discount_earlier)
+    {
+        Rpgcache_MOf = (Rpgcache_MOf * 2) / 10;
+        Rpgcache_MOf_discount = 80;
+    }
+    else if (h - Merchant_last_sale[m] > 1000 / discount_earlier)
     {
         Rpgcache_MOf = (Rpgcache_MOf * 3) / 10;
         Rpgcache_MOf_discount = 70;
     }
-    else if (h - Merchant_last_sale[m] > 2000)
+    else if (h - Merchant_last_sale[m] > 500 / discount_earlier)
     {
         Rpgcache_MOf = (Rpgcache_MOf * 5) / 10;
         Rpgcache_MOf_discount = 50;
     }
-    else if (h - Merchant_last_sale[m] > 1000)
-    {
-        Rpgcache_MOf = (Rpgcache_MOf * 6) / 10;
-        Rpgcache_MOf_discount = 40;
-    }
-    else if (h - Merchant_last_sale[m] > 500)
+    else if (h - Merchant_last_sale[m] > 200 / discount_earlier)
     {
         Rpgcache_MOf = (Rpgcache_MOf * 7) / 10;
         Rpgcache_MOf_discount = 30;
     }
-    else if (h - Merchant_last_sale[m] > 200)
+    else if (h - Merchant_last_sale[m] > 100 / discount_earlier)
     {
         Rpgcache_MOf = (Rpgcache_MOf * 8) / 10;
         Rpgcache_MOf_discount = 20;
-    }
-    else if (h - Merchant_last_sale[m] > 100)
-    {
-        Rpgcache_MOf = (Rpgcache_MOf * 9) / 10;
-        Rpgcache_MOf_discount = 10;
     }
 
     return Rpgcache_MOf;
@@ -3265,7 +3266,7 @@ GameState::GameState()
     dao_BountyPreviousWeek = 0;
     dao_AdjustUpkeep = 0;
     dao_AdjustPopulationLimit = 0;
-    dao_MinVersion = 2020500; // init value for block height 0, don't change
+    dao_MinVersion = 2020800; // init value for block height 0, don't change
     // alphatest -- checkpoints
     dcpoint_height1 = 0;
     dcpoint_height2 = 0;
@@ -4236,7 +4237,9 @@ GameState::Pass0_CacheDataForGame ()
 //                  }
                     // alphatest -- bounties and voting
                     if (tmp_m >= MERCH_NORMAL_FIRST)
-                    if ((dao_MinVersion < 2020800) || (tmp_m != MERCH_RATIONS_TEST) || (dao_CrownholderBounty))
+                    if ((dao_MinVersion < 2020800) ||
+                        ((tmp_m != MERCH_RATIONS_TEST) && (tmp_m != MERCH_RING_IMMORTALITY) && (tmp_m != MERCH_AMULET_LIFE_SAVING)) ||
+                        (dao_CrownholderBounty))
                     {
                         if (ch.loot.nAmount > Cache_NPC_bounty_loot_available)
                         {
